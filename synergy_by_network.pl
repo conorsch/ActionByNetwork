@@ -22,8 +22,11 @@ sub start_synergy {
     my $connect_to = shift; #Grab target machine to connect to from function call
     wait_for_process("nm_applt"); #Wait until we're sure networkmanager is running
     `notify-send "Connecting to $connect_to ...\n"`; #A little feedback never hurt anyone
-    `killall synergyc`; #Ensure that no conflicting Synergy client instances are running (this could be neater);
-    `synergyc $connect_to`; #Run the connection, using the target machine grabbed as shift;
+    my $pid = `/usr/bin/pgrep synergyc`;
+    `killall synergyc` unless ($pid = undef); #Ensure that no conflicting Synergy client instances are running (this could be neater);
+    my @custom_args = qw/--yscroll 29/; #Add anything else that should be run. yscroll option fixes bad scroll wheel behavior on Windows hosts;
+#system ("synergyc --yscroll 29 $connect_to"); #Run the connection, using the target machine grabbed as shift;
+    system ("synergyc @custom_args $connect_to"); #Run the connection, using the target machine grabbed as shift;
 }
 sub check_ssid {
     my %connection_list = qw/BloodOfNorsemen 10.0.0.23 ap PCLAB0.local/; #List key-value pairs, format: ssid hostname ssid hostaname
@@ -31,7 +34,7 @@ sub check_ssid {
     print "SSID appears to be $ssid\n";
     print "Target to connect to is: $target_host\n";
     `notify-send "Identified current network connection as SSID: $ssid\n"`; #A little feedback never hurt anyone;
-    start_synergy($target_host); #die doesn't work here or die "Unable to start synergy! Exiting.\n";
+    start_synergy($target_host);# or die "Unable to start synergy! Exiting.\n";
 #Would be nice to have "or die" after start_synergy call, but gotta look up error codes
 }
 #
@@ -40,7 +43,7 @@ if ($interface = "wlan0" && $status = "up") { #Only run script if a working wire
     check_ssid;
 }
 else {
-    `notify-send "Network connection wonky; not starting synergy. SSID is: $ssid\n"`;
+    `notify-send "Network connection wonky; not starting synergy. SSID is: $ssid\n"`; #This should rarely or never be displayed, due to wait_for_process
 }
 
         
