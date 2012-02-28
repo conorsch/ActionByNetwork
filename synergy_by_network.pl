@@ -36,6 +36,7 @@ sub check_ssid {
     system ("/bin/su $user -c notify-send 'Identified current network connection as SSID: $ssid\n'"); #This isn't working. Neither backticks nor system works...
     start_synergy($target_host) or die "Unable to start synergy! Exiting.\n";
 }
+wait_for_process("nm_applt"); #Might be necessary to run this before waiting for network check if (to follow);
 if ($interface = "wlan0" && $status = "up") { #Only run script if a working wireless connection is detected
     print "Wireless network connection detected. Running check on whether Synergy configuration exists for this network.\n";
     check_ssid; 
