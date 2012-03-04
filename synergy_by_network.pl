@@ -10,13 +10,13 @@ my $status = $ARGV[1]; #grab interface from NetworkManager as second argument pa
 my $ssid = `iwgetid --raw`; #Grabs just SSID output, but with trailing newline (chomped below);
 chomp $ssid; #Necessary to remove trailing newline so string is pluggable in function calls;
 my $user = "conor"; #Might be necessary to invoke /bin/su $user to run synergyc properly;
-my %host_list = qw/BloodOfNorsemen 10.0.0.23 ap PCLAB0.local/; #List key-value pairs, format: ssid hostname ssid hostaname;
+my %host_list = qw/BloodOfNorsemen 10.0.0.23 ap 192.168.1.110/; #List key-value pairs, format: ssid hostname ssid hostaname;
 
 sub connect_monitor {
     my $display = "VGA1"; #Name of the display, as listed by `xrandr`;
     print "Checking for connected external monitors....\n";
     my $check = `xrandr | grep $display`; #Grab output from xrandr that mentions whether monitor is connected;
-    chomp $check;
+    chomp $check; #Probably necessary to remove trailing newline from $check variable;
     if ($check =~ m/^$display connected/) { 
         print "External monitor $display appears to be connected. Setting it up!\n";
         `xrandr --output LVDS1 --pos 2048x750 --mode 1366x768 --refresh 60.0186\nxrandr --output VGA1 --pos 0x0 --mode 2048x1152 --refresh 59.9087\nxrandr --output LVDS1 --primary`;
@@ -39,25 +39,26 @@ sub start_synergy {
     wait_for_process("nm_applt"); #Wait until we're sure networkmanager is running;
     `notify-send "Connecting to $connect_to ...\n"`; #A little feedback never hurt anyone;
     my $pid = `/usr/bin/pgrep synergyc`;
-#    `killall synergyc` unless ($pid = undef); #Ensure that no conflicting Synergy client instances are running (this could be neater);
-    `pkill $pid` unless ($pid = undef); #Ensure that no conflicting Synergy client instances are running (this could be neater);
+    `killall synergyc` unless ($pid = undef); #Ensure that no conflicting Synergy client instances are running (this could be neater);
+#    `kill $pid` unless ($pid = undef); #Ensure that no conflicting Synergy client instances are running (this could be neater);
     my @custom_args = qw/--yscroll 29/; #Add anything else that should be run. yscroll option fixes bad scroll wheel behavior on Windows hosts;
     system ("synergyc @custom_args $connect_to"); #Run the connection, using the target machine grabbed as shift;
 }
 sub check_ssid {
-    my $target_host = $host_list{$ssid} or die "Current network $ssid does not have synergy setup configured. Exiting.\n";
+    my $target_host = $host_list{$ssid} or die "Current network '$ssid' does not have synergy setup configured. Exiting.\n";
     print "SSID appears to be $ssid\n"; #A little feedback never hurt anyone;
     print "Target to connect to is: $target_host\n";
-    system ("/bin/su $user -c notify-send 'Identified current network connection as SSID: $ssid\n'"); #This isn't working. Neither backticks nor system works...
-    start_synergy($target_host) or die "Unable to start synergy! Exiting.\n";
-    connect_monitor; #Don't have this built into logic yet; want to see whether it works, first!;
+    system ("notify-send 'Identified current network connection as SSID: $ssid\n'"); #This isn't working. Neither backticks nor system works...
+    start_synergy($target_host);# or die "Unable to start synergy! Exiting.\n";
 }
 wait_for_process("nm_applt"); #Might be necessary to run this before waiting for network check if (to follow);
+connect_monitor; #Regardless of network state, check for external monitor;
 if ($interface = "wlan0" && $status = "up") { #Only run script if a working wireless connection is detected
-    print "Wireless network connection detected. Running check on whether Synergy configuration exists for this network.\n";
-    check_ssid; 
+    print "Wireless network connection detected: '$ssid'. Running check on whether Synergy configuration exists for this network.\n";
+    check_ssid; #Now that we know there's an active wifi connection, determine whether we have to do anything about it;
 }
-
 else {
     `notify-send "Network connection wonky; not starting synergy. SSID is: $ssid\n"`; #This should rarely or never be displayed, due to wait_for_process
 }
+`/bin/su -c $user zenity --info --text="balls"`;
+return;
