@@ -9,8 +9,11 @@ my $interface = $ARGV[0]; #grab interface from NetworkManager as first argument 
 my $status = $ARGV[1]; #grab interface from NetworkManager as second argument passed;
 my $ssid = `iwgetid --raw`; #Grabs just SSID output, but with trailing newline (chomped below);
 chomp $ssid; #Necessary to remove trailing newline so string is pluggable in function calls;
-my $user = "conor"; #Might be necessary to invoke /bin/su $user to run synergyc properly;
-my %host_list = qw/BloodOfNorsemen 10.0.0.23 ap 192.168.1.110/; #List key-value pairs, format: ssid hostname ssid hostaname;
+
+###Insert SSIDs and Synergy host addresses as key-value pairs, e.g. ssid hostname ssid hostname
+###User is advised to use IP address of host for best compatibility with Synergy; 
+###hostname.local syntax is also supported, but not as reliable (see Synergy documentation);
+my %host_list = qw/BloodOfNorsemen 10.0.0.23 ap 192.168.1.110/; 
 
 sub connect_monitor {
     my $display = "VGA1"; #Name of the display, as listed by `xrandr`;
@@ -24,7 +27,7 @@ sub connect_monitor {
     elsif ($check =~ m/^$display disconnected/) {
         print "External monitor $display does not appear to be connected; maintaining single display mode.\n"; #do nothing
     }
-    else { print "Something broke in connect_monitor\n";}
+    else { print "ERROR: problem while trying to connect to an external monitor.\n";}
 }
 sub wait_for_process {
     my $pname = shift; #Grab process name to watch for from function call;
@@ -58,8 +61,5 @@ if ($interface = "wlan0" && $status = "up") { #Only run script if a working wire
     check_ssid; #Now that we know there's an active wifi connection, determine whether we have to do anything about it;
 }
 else {
-    `notify-send "Network connection wonky; not starting synergy. SSID is: $ssid\n"`; #This should rarely or never be displayed, due to wait_for_process
+    `notify-send "Network connection wonky; not starting synergy. SSID is: $ssid\n"`; #This should rarely or never be displayed, due to wait_for_process;
 }
-`export DISPLAY=:0.0`;
-`/bin/su -c $user zenity --info --text="balls"`;
-return;
