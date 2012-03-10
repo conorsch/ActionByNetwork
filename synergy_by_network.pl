@@ -39,7 +39,7 @@ sub wait_for_process {
 }
 sub start_synergy {
     my $connect_to = shift; #Grab target machine to connect to from function call;
-    wait_for_process("nm_applt"); #Wait until we're sure networkmanager is running;
+#wait_for_process("nm_applt"); #Wait until we're sure networkmanager is running;
     `notify-send "Connecting to $connect_to ...\n"`; #A little feedback never hurt anyone;
     my $pid = `/usr/bin/pgrep synergyc`;
     `killall synergyc` unless ($pid = undef); #Ensure that no conflicting Synergy client instances are running (this could be neater);
@@ -54,7 +54,6 @@ sub check_ssid {
     system ("notify-send 'Identified current network connection as SSID: $ssid\n'"); #This isn't working. Neither backticks nor system works...
     start_synergy($target_host);# or die "Unable to start synergy! Exiting.\n";
 }
-wait_for_process("nm_applt"); #Might be necessary to run this before waiting for network check if (to follow);
 connect_monitor; #Regardless of network state, check for external monitor;
 if ($interface = "wlan0" && $status = "up") { #Only run script if a working wireless connection is detected
     print "Wireless network connection detected: '$ssid'. Running check on whether Synergy configuration exists for this network.\n";
