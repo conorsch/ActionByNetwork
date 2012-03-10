@@ -8,7 +8,9 @@ use warnings;
 my $interface = $ARGV[0]; #grab interface from NetworkManager as first argument passed;
 my $status = $ARGV[1]; #grab interface from NetworkManager as second argument passed;
 my $ssid = `iwgetid --raw`; #Grabs just SSID output, but with trailing newline (chomped below);
+my $debugging = 1;
 chomp $ssid; #Necessary to remove trailing newline so string is pluggable in function calls;
+
 
 ###Insert SSIDs and Synergy host addresses as key-value pairs, e.g. ssid hostname ssid hostname
 ###User is advised to use IP address of host for best compatibility with Synergy; 
@@ -17,6 +19,7 @@ my %host_list = qw/BloodOfNorsemen 10.0.0.23 ap 192.168.1.110/;
 
 sub connect_monitor {
     my $display = "VGA1"; #Name of the display, as listed by `xrandr`;
+    `logger -s "Checking for connected external monitors...\n"`;
     print "Checking for connected external monitors....\n";
     my $check = `xrandr | grep $display`; #Grab output from xrandr that mentions whether monitor is connected;
     chomp $check; #Probably necessary to remove trailing newline from $check variable;
@@ -40,8 +43,9 @@ sub wait_for_process {
 sub start_synergy {
     my $connect_to = shift; #Grab target machine to connect to from function call;
 #wait_for_process("nm_applt"); #Wait until we're sure networkmanager is running;
-    `notify-send "Connecting to $connect_to ...\n"`; #A little feedback never hurt anyone;
-    my $pid = `/usr/bin/pgrep synergyc`;
+    print "Connecting to $connect_to ...\n"; #A little feedback never hurt anyone;
+    `logger -s "Connecting to $connect_to ...\n"`;
+    my $pid = `pgrep synergyc`;
     `killall synergyc` unless ($pid = undef); #Ensure that no conflicting Synergy client instances are running (this could be neater);
 #    `kill $pid` unless ($pid = undef); #Ensure that no conflicting Synergy client instances are running (this could be neater);
     my @custom_args = qw/--yscroll 29/; #Add anything else that should be run. yscroll option fixes bad scroll wheel behavior on Windows hosts;
@@ -49,16 +53,17 @@ sub start_synergy {
 }
 sub check_ssid {
     my $target_host = $host_list{$ssid} or die "Current network '$ssid' does not have synergy setup configured. Exiting.\n";
-    print "SSID appears to be $ssid\n"; #A little feedback never hurt anyone;
-    print "Target to connect to is: $target_host\n";
+    `logger -s "SSID appears to be $ssid\n"` if ($debugging == 1);  #A little feedback never hurt anyone;
+    `logger -s "Target to connect to is: $target_host\n"` if ($debugging == 1);
     system ("notify-send 'Identified current network connection as SSID: $ssid\n'"); #This isn't working. Neither backticks nor system works...
     start_synergy($target_host);# or die "Unable to start synergy! Exiting.\n";
 }
-connect_monitor; #Regardless of network state, check for external monitor;
+#connect_monitor; #Regardless of network state, check for external monitor;
+check_ssid;
 if ($interface = "wlan0" && $status = "up") { #Only run script if a working wireless connection is detected
     print "Wireless network connection detected: '$ssid'. Running check on whether Synergy configuration exists for this network.\n";
     check_ssid; #Now that we know there's an active wifi connection, determine whether we have to do anything about it;
 }
 else {
-    `notify-send "Network connection wonky; not starting synergy. SSID is: $ssid\n"`; #This should rarely or never be displayed, due to wait_for_process;
+    print "Network connection wonky; not starting synergy. SSID is: $ssid\n"; #This should rarely or never be displayed;
 }
