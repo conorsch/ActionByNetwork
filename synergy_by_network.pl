@@ -60,5 +60,6 @@ if ($interface = "wlan0" && $status = "up") { #Only run script if a working wire
 else {
     `notify-send "Network connection wonky; not starting synergy. SSID is: $ssid\n"`; #This should rarely or never be displayed, due to wait_for_process
 }
+`export DISPLAY=:0.0`;
 `/bin/su -c $user zenity --info --text="balls"`;
 return;

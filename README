@@ -1,0 +1,5 @@
+This script will connect to Synergy hosts according to wireless network connections. For example, if the user moves a laptop between home and office, using Synergy at each location, this script will automatically determine the appropriate connection to run and set it up. 
+
+The script hooks into NetworkManager's dispatcher.d service, and as such should be placed in /etc/NetworkManager/dispatcher.d/ on Debian-basd systems.
+
+Future versions will support a variety of network-based actions, such as setting up external monitors and mounting remote shares (e.g. via SMBFS/NFS on a LAN, or SSHFS if remote).
