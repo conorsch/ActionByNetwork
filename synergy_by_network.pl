@@ -12,11 +12,6 @@ my $debugging = 1;
 
 my $ssid = retrieve_ssid(); #Get network name!
 
-while (!$ssid) {
-    sleep 1;
-    $ssid = retrieve_ssid(); #Try again!
-}
-
 ###Insert SSIDs and Synergy host addresses as key-value pairs, e.g. ssid hostname ssid hostname
 ###User is advised to use IP address of host for best compatibility with Synergy; 
 ###hostname.local syntax is also supported, but not as reliable (see Synergy documentation);
@@ -24,6 +19,10 @@ my %host_list = qw/BloodOfNorsemen 10.0.0.23 ap 192.168.1.110/;
 
 sub retrieve_ssid {
     $ssid = `iwgetid --raw`; #Grabs just SSID output, but with trailing newline (chomped below);
+    while (!$ssid) {
+        sleep 1; 
+        $ssid = `iwgetid --raw`; #Try again!;
+    }
     chomp $ssid; #Necessary to remove trailing newline so string is pluggable in function calls;
     return $ssid;
 }
