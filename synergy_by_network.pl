@@ -56,12 +56,12 @@ sub start_synergy {
     print "Connecting to $connect_to ...\n"; #A little feedback never hurt anyone;
     `logger -s "Connecting to $connect_to ...\n"`;
     my $pid = `/usr/bin/pgrep synergyc`;
-    `/usr/bin/killall synergyc` unless ($pid = undef); #Ensure that no conflicting Synergy client instances are running (this could be neater);
+    `killall synergyc` unless ($pid = undef); #Ensure that no conflicting Synergy client instances are running (this could be neater);
     sleep 2;
 #    `kill $pid` unless ($pid = undef); #Ensure that no conflicting Synergy client instances are running (this could be neater);
     my @custom_args = qw/--yscroll 29/; #Add anything else that should be run. yscroll option fixes bad scroll wheel behavior on Windows hosts;
 #    system ("synergyc @custom_args $connect_to"); #Run the c0onnection, using the target machine grabbed as shift;
-    `/bin/su $username -c 'synergyc @custom_args $connect_to'`; #Run the connection, using the target machine grabbed as shift;
+    `synergyc @custom_args $connect_to`; #Run the connection, using the target machine grabbed as shift;
 }
 sub check_ssid {
     my $target_host = $host_list{$ssid};# or die "Current network '$ssid' does not have synergy setup configured. Exiting.\n";
