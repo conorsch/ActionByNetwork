@@ -10,8 +10,14 @@ my $status = $ARGV[1]; #grab interface from NetworkManager as second argument pa
 my $username = "conor";
 my $debugging = 1;
 
+`/usr/bin/logger -s "kja;dslkjg;aldskjg;lsakdjf\n\n\n\n\n\n"`;
 my $ssid = retrieve_ssid(); #Get network name!
 
+while (!$ssid) {
+    sleep 1; 
+    `logger -s "Waiting another second for ssid...\n"`;
+    $ssid = `/sbin/iwgetid --raw`; #Try again!;
+}
 ###Insert SSIDs and Synergy host addresses as key-value pairs, e.g. ssid hostname ssid hostname
 ###User is advised to use IP address of host for best compatibility with Synergy; 
 ###hostname.local syntax is also supported, but not as reliable (see Synergy documentation);
@@ -19,11 +25,8 @@ my %host_list = qw/BloodOfNorsemen 10.0.0.23 ap 192.168.1.110/;
 
 sub retrieve_ssid {
     $ssid = `iwgetid --raw`; #Grabs just SSID output, but with trailing newline (chomped below);
-    while (!$ssid) {
-        sleep 1; 
-        $ssid = `iwgetid --raw`; #Try again!;
-    }
     chomp $ssid; #Necessary to remove trailing newline so string is pluggable in function calls;
+    `logger -s "Action_by_Network script confirms network SSID ot be: '$ssid'\n"`;
     return $ssid;
 }
 
@@ -56,12 +59,12 @@ sub start_synergy {
     print "Connecting to $connect_to ...\n"; #A little feedback never hurt anyone;
     `logger -s "Connecting to $connect_to ...\n"`;
     my $pid = `/usr/bin/pgrep synergyc`;
-    `killall synergyc` unless ($pid = undef); #Ensure that no conflicting Synergy client instances are running (this could be neater);
+    `/usr/bin/killall synergyc` unless (!$pid); #Ensure that no conflicting Synergy client instances are running (this could be neater);
     sleep 2;
 #    `kill $pid` unless ($pid = undef); #Ensure that no conflicting Synergy client instances are running (this could be neater);
     my @custom_args = qw/--yscroll 29/; #Add anything else that should be run. yscroll option fixes bad scroll wheel behavior on Windows hosts;
 #    system ("synergyc @custom_args $connect_to"); #Run the c0onnection, using the target machine grabbed as shift;
-    `synergyc @custom_args $connect_to`; #Run the connection, using the target machine grabbed as shift;
+    `/bin/su $username -c 'synergyc @custom_args $connect_to'`; #Run the connection, using the target machine grabbed as shift;
 }
 sub check_ssid {
     my $target_host = $host_list{$ssid};# or die "Current network '$ssid' does not have synergy setup configured. Exiting.\n";
