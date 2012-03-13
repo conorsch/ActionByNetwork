@@ -1,22 +1,22 @@
-#!/usr/bin/perl
+#!/cusr/bin/perl
 #This script checks existing network connections (wifi only) and launches appropriate Synergy instances
 #Place this file in /etc/NetworkManager/dispatcher.d/99smartsynergy.sh
 #Adapted from this script: http://sysadminsjourney.com/content/2008/12/18/use-networkmanager-launch-scripts-based-network-location
 use strict;
 use warnings;
 
-my $interface = $ARGV[0]; #grab interface from NetworkManager as first argument passed;
-my $status = $ARGV[1]; #grab interface from NetworkManager as second argument passed;
+my $interface = $ARGV[0]; #grab connection interface (e.g. wlan0) from NetworkManager as first argument passed;
+my $status = $ARGV[1]; #grab connection status (e.g. up, down) from NetworkManager as second argument passed;
 my $username = "conor";
 my $debugging = 1;
 
-`/usr/bin/logger -s "kja;dslkjg;aldskjg;lsakdjf\n\n\n\n\n\n"`;
+`/usr/bin/logger -s "kja;dslkjg;aldskjg;lsakdjf\n\n\n\n\n\n"`; #To make it obvious in syslog whether this script is being run;
 my $ssid = retrieve_ssid(); #Get network name!
 
 while (!$ssid) {
     sleep 1; 
     `logger -s "Waiting another second for ssid...\n"`;
-    $ssid = `/sbin/iwgetid --raw`; #Try again!;
+    $ssid = retrieve_ssid(); #Try again!;
 }
 ###Insert SSIDs and Synergy host addresses as key-value pairs, e.g. ssid hostname ssid hostname
 ###User is advised to use IP address of host for best compatibility with Synergy; 
@@ -24,9 +24,12 @@ while (!$ssid) {
 my %host_list = qw/BloodOfNorsemen 10.0.0.23 ap 192.168.1.110/; 
 
 sub retrieve_ssid {
+#    local $/ = "#012";
     $ssid = `iwgetid --raw`; #Grabs just SSID output, but with trailing newline (chomped below);
     chomp $ssid; #Necessary to remove trailing newline so string is pluggable in function calls;
-    `logger -s "Action_by_Network script confirms network SSID ot be: '$ssid'\n"`;
+#$ssid =~ s/(.*)(#\d{3})/$1/;
+#    $ssid =~ s/\#012//; #chomp removes '\n' but doesn't remove '#012' which is appended when script called by root;
+    `logger -s "Action_by_Network script confirms network SSID to be: '$ssid'\n"`;
     return $ssid;
 }
 
@@ -64,7 +67,8 @@ sub start_synergy {
 #    `kill $pid` unless ($pid = undef); #Ensure that no conflicting Synergy client instances are running (this could be neater);
     my @custom_args = qw/--yscroll 29/; #Add anything else that should be run. yscroll option fixes bad scroll wheel behavior on Windows hosts;
 #    system ("synergyc @custom_args $connect_to"); #Run the c0onnection, using the target machine grabbed as shift;
-    `/bin/su $username -c 'synergyc @custom_args $connect_to'`; #Run the connection, using the target machine grabbed as shift;
+#    `/bin/su $username -c 'synergyc @custom_args $connect_to'`; #Run the connection, using the target machine grabbed as shift;
+    `synergyc @custom_args $connect_to`; #Run the connection, using the target machine grabbed as shift;
 }
 sub check_ssid {
     my $target_host = $host_list{$ssid};# or die "Current network '$ssid' does not have synergy setup configured. Exiting.\n";
