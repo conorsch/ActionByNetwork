@@ -9,6 +9,7 @@ my $interface = $ARGV[0]; #grab connection interface (e.g. wlan0) from NetworkMa
 my $status = $ARGV[1]; #grab connection status (e.g. up, down) from NetworkManager as second argument passed;
 my $username = "conor";
 my $debugging = 1;
+my $root_exec; "/bin/su $username -c"; #going to be typing this a lot!;
 
 my $ssid = retrieve_ssid(); #Get network name!
 
@@ -35,13 +36,16 @@ sub connect_monitor {
     chomp $check; #Probably necessary to remove trailing newline from $check variable;
     if ($check =~ m/^$display connected/) { 
         print "External monitor $display appears to be connected. Setting it up!\n";
-        `xrandr --output LVDS1 --pos 2048x750 --mode 1366x768 --refresh 60.0186\nxrandr --output VGA1 --pos 0x0 --mode 2048x1152 --refresh 59.9087\nxrandr --output LVDS1 --primary`;
+        `$root_exec 'xrandr --output LVDS1 --pos 2048x750 --mode 1366x768 --refresh 60.0186'\n
+            $root_exec 'xrandr --output VGA1 --pos 0x0 --mode 2048x1152 --refresh 59.9087'\n
+            $root_exec 'xrandr --output LVDS1 --primary'`; #Not sure whether it's necessary to root_exec all of these individually;
     }
     elsif ($check =~ m/^$display disconnected/) {
-        print "External monitor $display does not appear to be connected; maintaining single display mode.\n"; #do nothing
+        `logger -s "External monitor $display does not appear to be connected; maintaining single display mode.\n"`; #do nothing
     }
-    else { print "ERROR: problem while trying to connect to an external monitor.\n";}
+    else { `logger -s "ERROR: problem while trying to connect to an external monitor.\n"`;}
 }
+    
 sub wait_for_process {
     my $pname = shift; #Grab process name to watch for from function call;
     my $pid = `/usr/bin/pgrep $pname`; #Try to get PID of nm_applt, to make sure it's running;
