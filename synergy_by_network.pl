@@ -7,15 +7,14 @@ use warnings;
 
 my $interface = $ARGV[0]; #grab connection interface (e.g. wlan0) from NetworkManager as first argument passed;
 my $status = $ARGV[1]; #grab connection status (e.g. up, down) from NetworkManager as second argument passed;
-my $username = "conor";
-my $debugging = 1;
-my $root_exec; "/bin/su $username -c"; #going to be typing this a lot!;
+my $username = "conor"; #Insert username to run commands as (e.g. synergyc, xrandr);
+my $debugging = 1; #Will take this out later, used for providing more verbose feedback in syslog;
+my $root_exec; "/bin/su $username -c"; #This command properly runs various programs from root as $username; (better as sub?);
 
 my $ssid = retrieve_ssid(); #Get network name!
-
 while (!$ssid) {
     sleep 5; #Wait a bit, giving the interface some time to finalize connection;
-    `logger -s "Waiting another second for ssid...\n"`;
+    `logger -s "Waiting another second for ssid...\n"` if ($debugging == 1); #Useful feedback, not so necessary;
     $ssid = retrieve_ssid(); #Try again!;
 }
 ###Insert SSIDs and Synergy host addresses as key-value pairs, e.g. ssid hostname ssid hostname
@@ -43,24 +42,15 @@ sub connect_monitor {
     elsif ($check =~ m/^$display disconnected/) {
         `logger -s "External monitor $display does not appear to be connected; maintaining single display mode.\n"`; #do nothing
     }
-    else { `logger -s "ERROR: problem while trying to connect to an external monitor.\n"`;}
-}
-    
-sub wait_for_process {
-    my $pname = shift; #Grab process name to watch for from function call;
-    my $pid = `/usr/bin/pgrep $pname`; #Try to get PID of nm_applt, to make sure it's running;
-    while ($pid = undef) { #If process (nm_applt) isn't running, wait until it is;
-        sleep 3; #Wait for a bit to give the application a change to start;
-        my $pid = `/usr/bin/pgrep $pname`; #Try again to grab the PID;
-    }
+    else { `logger -s "ERROR: problem while trying to connect to an external monitor.\n"`;} #Also do nothing;
 }
 sub start_synergy {
     my $connect_to = shift; #Grab target machine to connect to from function call;
     print "Connecting to $connect_to ...\n"; #A little feedback never hurt anyone;
     `logger -s "Connecting to $connect_to ...\n"`;
-    my $pid = `/usr/bin/pgrep synergyc`;
-    `/usr/bin/killall synergyc` unless (!$pid); #Ensure that no conflicting Synergy client instances are running (this could be neater);
-    sleep 2;
+    my $pid = `/usr/bin/pgrep synergyc`; #Try to grab PID of an already running instance of synergyc;
+    `/usr/bin/killall synergyc` unless (!$pid); #Ensure that no conflicting Synergy client instances are running (unless there isn't one);
+    sleep 2; #Just playing nice here, letting synergyc get killed, probably isn't necessary;
     my @custom_args = qw/--yscroll 29/; #Add anything else that should be run. yscroll option fixes bad scroll wheel behavior on Windows hosts;
     `synergyc @custom_args $connect_to`; #Run the connection, using the target machine grabbed as shift;
 }
