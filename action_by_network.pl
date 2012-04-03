@@ -20,7 +20,7 @@ while (!$ssid) {
 ###Insert SSIDs and Synergy host addresses as key-value pairs, e.g. ssid hostname ssid hostname
 ###User is advised to use IP address of host for best compatibility with Synergy; 
 ###hostname.local syntax is also supported, but not as reliable (see Synergy documentation);
-my %host_list = qw/BloodOfNorsemen 10.0.0.23 ap 192.168.1.110/; 
+my %host_list = qw/BloodOfNorsemen 10.0.0.30 ap 192.168.1.110/; 
 
 sub retrieve_ssid {
     $ssid = `iwgetid --raw`; #Grabs just SSID output, but with trailing newline (chomped below);
