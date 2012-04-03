@@ -5,7 +5,7 @@
 use strict;
 use warnings;
 
-require qw/general_tools.pl hotplug_monitor.pl/; #Import necessary subroutines;
+require qw/general_tools.pl monitor_setup.pl/; #Import necessary subroutines;
 
 my $interface = $ARGV[0]; #grab connection interface (e.g. wlan0) from NetworkManager as first argument passed;
 my $status = $ARGV[1]; #grab connection status (e.g. up, down) from NetworkManager as second argument passed;
