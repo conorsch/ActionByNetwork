@@ -1,13 +1,14 @@
-#!/cusr/bin/perl
+#!/usr/bin/perl
 #This script checks existing network connections (wifi only) and launches appropriate Synergy instances
 #Place this file in /etc/NetworkManager/dispatcher.d/99smartsynergy.sh
 #Adapted from this script: http://sysadminsjourney.com/content/2008/12/18/use-networkmanager-launch-scripts-based-network-location
 use strict;
 use warnings;
 
+require qw/general_tools.pl hotplug_monitor.pl/; #Import necessary subroutines;
+
 my $interface = $ARGV[0]; #grab connection interface (e.g. wlan0) from NetworkManager as first argument passed;
 my $status = $ARGV[1]; #grab connection status (e.g. up, down) from NetworkManager as second argument passed;
-my $username = "conor"; #Insert username to run commands as (e.g. synergyc, xrandr);
 my $debugging = 1; #Will take this out later, used for providing more verbose feedback in syslog;
 my $root_exec; "/bin/su $username -c"; #This command properly runs various programs from root as $username; (better as sub?);
 
@@ -27,22 +28,6 @@ sub retrieve_ssid {
     chomp $ssid; #Necessary to remove trailing newline so string is pluggable in function calls;
     `logger -s "Action_by_Network script confirms network SSID to be: '$ssid'\n"` if ($debugging == 1);
     return $ssid; #Pass SSID back to function call;
-}
-sub connect_monitor {
-    my $display = "VGA1"; #Name of the display, as listed by `xrandr`;
-    `logger -s "Checking for connected external monitors...\n"`;
-    my $check = `xrandr | grep $display`; #Grab output from xrandr that mentions whether monitor is connected;
-    chomp $check; #Probably necessary to remove trailing newline from $check variable;
-    if ($check =~ m/^$display connected/) { 
-        print "External monitor $display appears to be connected. Setting it up!\n";
-        `$root_exec 'xrandr --output LVDS1 --pos 2048x750 --mode 1366x768 --refresh 60.0186'\n
-            $root_exec 'xrandr --output VGA1 --pos 0x0 --mode 2048x1152 --refresh 59.9087'\n
-            $root_exec 'xrandr --output LVDS1 --primary'`; #Not sure whether it's necessary to root_exec all of these individually;
-    }
-    elsif ($check =~ m/^$display disconnected/) {
-        `logger -s "External monitor $display does not appear to be connected; maintaining single display mode.\n"`; #do nothing
-    }
-    else { `logger -s "ERROR: problem while trying to connect to an external monitor.\n"`;} #Also do nothing;
 }
 sub start_synergy {
     my $connect_to = shift; #Grab target machine to connect to from function call;
