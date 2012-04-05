@@ -2,6 +2,7 @@
 #This script provides a few variables for smooth operation of the ActionByNetwork suite of scripts;
 use strict;
 use warnings;
+use diagnostics;
 
 my $username = "conor"; #Insert username to run commands as (e.g. synergyc, xrandr);
 
@@ -10,7 +11,14 @@ sub logger {
     system("logger -s ActionByNetwork: '$message'");
 }
 
+sub run_as_user {
+    my $command = shift;
+    my $result = `/bin/su $username -c '$command'`;
+    return $result;
+}
+
 sub request_interfaces {
+#This function creates a list of possible network interfaces on the system, ignoring the loopback interface;
     my @interfaces; #Set up a list to store interface values in;
     my @ifconfig = `ifconfig`; #Grab output of ifconfig for parsing;
     foreach my $line (@ifconfig) {
