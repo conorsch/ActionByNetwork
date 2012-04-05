@@ -1,7 +1,6 @@
 #!/usr/env/perl 
 #This script sets up user-configured external monitors. It offers two functions,
 #one an action to be taken if a monitor is detected, and another if no external monitor is found.
-#This script is based heavily on: ost *
 use warnings;
 use strict;
 use feature "switch";
@@ -28,8 +27,7 @@ sub connect_monitor {
 
 sub disconnect_monitor {
     my $monitor = shift; #Assign easy name to monitor passed from caller;
-    logger("External monitor $monitor does not appear to be connected; maintaining single display mode."); 
-#Feedback;
+    logger("External monitor $monitor does not appear to be connected; maintaining single display mode."); #Feedback;
     system("xrandr --output $monitor --off"); #Disable that monitor, because it's not connected; 
 }
 
@@ -37,12 +35,9 @@ my $check = `xrandr | grep $external_monitor`; #Grab output from xrandr that men
 chomp $check; #Probably necessary to remove trailing newline from $check variable;
 
 given ($check) {
-    when (/^$external_monitor connected/) { 
-        connect_monitor($external_monitor);
-    }
-    when (/^$external_monitor disconnected/) {
-        disconnect_monitor($external_monitor);
-    }
-    default { logger("ERROR: problem while trying to connect to an external monitor."); } #Also do nothing;
+    when (/^$external_monitor connected/)    { connect_monitor($external_monitor); }
+    when (/^$external_monitor disconnected/) { disconnect_monitor($external_monitor); }
+    default                                  { logger("ERROR: problem while trying to connect to an external monitor."); } #Also do nothing;
 }
+
 1; #Since this script is reference in calls by other scripts, it must exit with True;
