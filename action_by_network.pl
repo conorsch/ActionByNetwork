@@ -3,20 +3,25 @@
 #Call this script from /etc/NetworkManager/dispatcher.d/9action_by_network.sh
 use strict;
 use warnings;
+use Moose;
 
-require qw/general_tools.pl monitor_setup.pl/; #Import necessary subroutines;
+require qw/general_tools.pl monitor_setup.pl syneryg_setup.pl/; #Import necessary subroutines;
 
 my $interface = $ARGV[0]; #grab connection interface (e.g. wlan0) from NetworkManager as first argument passed;
 my $status = $ARGV[1]; #grab connection status (e.g. up, down) from NetworkManager as second argument passed;
 
-package Location;
 
-my %locations = ( "home" => {
-                    "type" => "wireless", 
-                    "synergy" => "yes",
-                    }
-                    "work" => {
-                    "type" => "Peter", "Status" => "Part-time"} );
+
+
+package Location {
+
+    has 'label', is => 'ro', isa => 'Str'; #Name the location, as a read-only string;
+    has 'commands', is => 'ro', isa => 'ArrayRef'; #Provide list of actions, as read-only array reference;
+
+
+    my $at_home = Location->new();
+    my $at_work = Location->new();
+    my $on_the_road = Location->new();
 
 sub retrieve_ssid {
     my $ssid = `iwgetid --raw`; #Grabs just SSID output, but with trailing newline (chomped below);
@@ -32,4 +37,3 @@ while (!$ssid) {
     $ssid = retrieve_ssid(); #Try again!;
 }
 
-check_ssid;
