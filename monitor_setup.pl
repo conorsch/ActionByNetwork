@@ -4,7 +4,7 @@
 #This script is based heavily on: ost *
 use warnings;
 use strict;
-
+use feature "switch";
 require qw/general_tools.pl/;
 
 #system("export DISPLAY=:0.0"); #This is necessary because root won't be able to call xrandr without knowing the DISPLAY;
@@ -19,33 +19,30 @@ my %monitor_settings = (
         );
 
 sub connect_monitor {
-    my $monitor = shift;
+    my $monitor = shift; #Assign easy name to monitor passed from caller;
     print "External monitor $monitor appears to be connected. Setting it up!\n";
-    my $command = $monitor_settings{$monitor};
-    root_exec("$command") == 0
-        or die "External monitor setup failed: $?";
-#    root_exec("xrandr --output LVDS1 --pos 2048x750 --mode 1366x768 --refresh 60.0186");
-#    root_exec("xrandr --output VGA1 --pos 0x0 --mode 2048x1152 --refresh 59.9087");
-#    root_exec("xrandr --output LVDS1 --primary"); #Not sure whether it's necessary to root_exec all of these individually;
+    my $command = $monitor_settings{$monitor}; #Retrieve appropriate command from monitor_settings hash;
+    system("$command") == 0
+        or die "External monitor setup failed: $?"; #Should translate this error code from 256 to 64
 }
 
 sub disconnect_monitor {
-    my $monitor = shift;
-    logger("External monitor $monitor does not appear to be connected; maintaining single display mode."); #do nothing
-    system("xrandr --output $monitor --off");
+    my $monitor = shift; #Assign easy name to monitor passed from caller;
+    logger("External monitor $monitor does not appear to be connected; maintaining single display mode."); 
+#Feedback;
+    system("xrandr --output $monitor --off"); #Disable that monitor, because it's not connected; 
 }
 
 my $check = `xrandr | grep $external_monitor`; #Grab output from xrandr that mentions whether monitor is connected;
 chomp $check; #Probably necessary to remove trailing newline from $check variable;
 
-if ($check =~ m/^$external_monitor connected/) { 
-    connect_monitor($external_monitor);
+given ($check) {
+    when (/^$external_monitor connected/) { 
+        connect_monitor($external_monitor);
+    }
+    when (/^$external_monitor disconnected/) {
+        disconnect_monitor($external_monitor);
+    }
+    default { logger("ERROR: problem while trying to connect to an external monitor."); } #Also do nothing;
 }
-
-elsif ($check =~ m/^$external_monitor disconnected/) {
-    disconnect_monitor($external_monitor);
-}
-
-else { logger("ERROR: problem while trying to connect to an external monitor.");} #Also do nothing;
-
 1; #Since this script is reference in calls by other scripts, it must exit with True;
