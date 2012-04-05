@@ -18,17 +18,14 @@ sub start_synergy {
     my @custom_args = qw/--yscroll 29/; #Add anything else that should be run. yscroll option fixes bad scroll wheel behavior on Windows hosts;
     system("synergyc @custom_args $connect_to"); #Run the connection, using the target machine grabbed as shift;
 }
+
 sub kill_synergy {
     my $pid = `/usr/bin/pgrep synergyc`; #Try to grab PID of an already running instance of synergyc;
     system("/usr/bin/killall synergyc") unless (!$pid); #Ensure that no conflicting Synergy client instances are running (unless there isn't one);
     sleep 2; #Just playing nice here, letting synergyc get killed, probably isn't necessary;
 }
-sub check_ssid {
-#This SSID parsing will fail as the script is currently written;
-#Instead this should be asking for "home" or "work" or similar label from action_by_network script;
-#That will take some more work...
-    my $target_host = $host_list{$ssid};# or die "Current network '$ssid' does not have synergy setup configured. Exiting.\n";
-    logger("SSID appears to be $ssid\n") #A little feedback never hurt anyone;
-    logger("Target to connect to is: $target_host\n");
-    start_synergy($target_host);# or die "Unable to start synergy! Exiting.\n";
-}
+
+#return if (@ARGV[0] = 0); #Exit if no target was supplied by caller;
+start_synergy($target_host);
+
+1;
