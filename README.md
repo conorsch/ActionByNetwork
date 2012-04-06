@@ -1,4 +1,4 @@
-=ActionByNetwork
+=ActionByNetwork=
 
 
 This script allows the user to configure various environments, identified by a wireless network SSID, in which certain scripts are run.
@@ -11,6 +11,7 @@ Future versions will seek for better desktop environment integration (e.g. KDE 4
 * External monitor setup
 
 To do: 
+
 * Implement consistent use of general_tools (root_exec and logger)
 * Split up logic across modular scripts
 * Management of remote shares (including unmounting before disconnect to prevent D-state processes in file browsers)
