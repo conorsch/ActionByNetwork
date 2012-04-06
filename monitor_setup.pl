@@ -1,4 +1,4 @@
-#!/usr/env/perl 
+#!/usr/bin/perl 
 #This script sets up user-configured external monitors. It offers two functions,
 #one an action to be taken if a monitor is detected, and another if no external monitor is found.
 use warnings;
@@ -20,12 +20,11 @@ my %monitor_settings = (
 
 sub connect_monitor {
     my $monitor = shift; #Assign easy name to monitor passed from caller;
-    print "External monitor $monitor appears to be connected. Setting it up!\n";
+    logger("External monitor $monitor appears to be connected. Setting it up!"); #Feedback;
     my $command = $monitor_settings{$monitor}; #Retrieve appropriate command from monitor_settings hash;
-    print "This is the command we're dealing with: \n$command\n";
 #system("$command") == 0
 #        or die "External monitor setup failed: $?"; #Should translate this error code from 256 to 64
-    run_as_user("$username", $command);
+    run_as_user($username, $command);
 }
 
 sub disconnect_monitor {
