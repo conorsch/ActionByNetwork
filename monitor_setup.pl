@@ -3,11 +3,12 @@
 #one an action to be taken if a monitor is detected, and another if no external monitor is found.
 use warnings;
 use strict;
+use diagnostics;
 use feature "switch";
 require qw/general_tools.pl/;
 
-#system("export DISPLAY=:0.0"); #This is necessary because root won't be able to call xrandr without knowing the DISPLAY;
-#`export DISPLAY=:0.0`; #This is necessary because root won't be able to call xrandr without knowing the DISPLAY;
+our $username;
+
 my $external_monitor = $ARGV[0] || "VGA1"; #Which monitor should be configured? Assume VGA1 if none;
 my %monitor_settings = (
         #If using KDE, grab next line from ~/.kde/share/config/krandrrc after using System Settings 
@@ -21,19 +22,22 @@ sub connect_monitor {
     my $monitor = shift; #Assign easy name to monitor passed from caller;
     print "External monitor $monitor appears to be connected. Setting it up!\n";
     my $command = $monitor_settings{$monitor}; #Retrieve appropriate command from monitor_settings hash;
-    system("$command") == 0
-        or die "External monitor setup failed: $?"; #Should translate this error code from 256 to 64
+    print "This is the command we're dealing with: \n$command\n";
+#system("$command") == 0
+#        or die "External monitor setup failed: $?"; #Should translate this error code from 256 to 64
+    run_as_user("$username", $command);
 }
 
 sub disconnect_monitor {
     my $monitor = shift; #Assign easy name to monitor passed from caller;
     logger("External monitor $monitor does not appear to be connected; maintaining single display mode."); #Feedback;
-    system("xrandr --output $monitor --off"); #Disable that monitor, because it's not connected; 
+    my $command = "xrandr --output $monitor --off"; #Disable that monitor, because it's not connected; 
+    run_as_user($username, $command);
 }
 
-my $check = `xrandr | grep $external_monitor`; #Grab output from xrandr that mentions whether monitor is connected;
+my $check = run_as_user($username, "xrandr | grep $external_monitor");
 chomp $check; #Probably necessary to remove trailing newline from $check variable;
-
+print "This is what the CHECK looks like: $check\n";
 given ($check) {
     when (/^$external_monitor connected/)    { connect_monitor($external_monitor); }
     when (/^$external_monitor disconnected/) { disconnect_monitor($external_monitor); }
