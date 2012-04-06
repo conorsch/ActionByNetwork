@@ -7,14 +7,14 @@ use diagnostics;
 our $username = "conor"; #Insert username to run commands as (e.g. synergyc, xrandr);
 
 sub logger {
-    my $message = shift;
-    system("logger -s ActionByNetwork: '$message'");
+    my $message = shift; #Grab string to be logged from function caller;
+    system("logger -s ActionByNetwork: '$message'"); #Send to system log;
 }
 
 sub run_as_user {
     my ($username, $command) = @_; #Grab both username to run as and command to run from function caller;
-    my $result = `/bin/su $username -c '$command'`; #Run 
-    return $result;
+    my $result = `/bin/su $username -c '$command'`; #Run command, grabbing output just in case;
+    return $result; #Pass output from command back to function caller;
 }
 
 sub request_interfaces {
