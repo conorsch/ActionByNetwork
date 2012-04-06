@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-my $username = "conor"; #Insert username to run commands as (e.g. synergyc, xrandr);
+our $username = "conor"; #Insert username to run commands as (e.g. synergyc, xrandr);
 
 sub logger {
     my $message = shift;
@@ -12,8 +12,8 @@ sub logger {
 }
 
 sub run_as_user {
-    my $command = shift;
-    my $result = `/bin/su $username -c '$command'`;
+    my ($username, $command) = @_; #Grab both username to run as and command to run from function caller;
+    my $result = `/bin/su $username -c '$command'`; #Run 
     return $result;
 }
 
