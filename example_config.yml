@@ -1,0 +1,16 @@
+#Let's try this example from http://search.cpan.org/~adamk/YAML-Tiny-1.51/lib/YAML/Tiny.pm
+
+---
+rootproperty: blah
+locations:
+    - home:
+        commands:
+            - synergy
+            - monitor
+            - hosts
+    - work:
+        - synergy
+        - monitor
+        - tunnel
+
+

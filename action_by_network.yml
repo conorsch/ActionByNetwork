@@ -1,0 +1,38 @@
+#This is a YAML configuration file for the ActionByNetwork suite of scripts.
+#Network locations are declared by sections in the form of [sections]
+#Options are declared with key-value pairs in the form of key = value
+
+#These options will apply to all network locations
+---
+
+user: conor
+command: monitor
+
+home:
+#List out commands to be run at the location called 'home'
+#Current supported commands are: synergy monitor 
+
+---
+commands:
+    synergy
+        host: 10.0.0.30
+    monitor
+        monitor: VGA1
+    hosts 
+    
+
+work:
+
+---
+commands: 
+    synergy
+        host: 192.168.1.110
+    tunnel
+
+
+other:
+
+commands: 
+    tunnel
+
+
