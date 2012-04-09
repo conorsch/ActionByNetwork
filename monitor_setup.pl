@@ -36,7 +36,6 @@ sub disconnect_monitor {
 
 my $check = run_as_user($username, "xrandr | grep $external_monitor");
 chomp $check; #Probably necessary to remove trailing newline from $check variable;
-print "This is what the CHECK looks like: $check\n";
 given ($check) {
     when (/^$external_monitor connected/)    { connect_monitor($external_monitor); }
     when (/^$external_monitor disconnected/) { disconnect_monitor($external_monitor); }
