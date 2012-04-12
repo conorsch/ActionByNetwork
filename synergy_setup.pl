@@ -14,7 +14,7 @@ my %host_list = qw/BloodOfNorsemen 10.0.0.30 ap 192.168.1.110/;
 sub start_synergy {
     my $connect_to = shift; #Grab target machine to connect to from function call;
     logger("Connecting to $connect_to ...\n");  #A little feedback never hurt anyone;
-    kill_synergy;
+    kill_synergy();
     my @custom_args = qw/--yscroll 29/; #Add anything else that should be run. yscroll option fixes bad scroll wheel behavior on Windows hosts;
     system("synergyc @custom_args $connect_to"); #Run the connection, using the target machine grabbed as shift;
 }
