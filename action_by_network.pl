@@ -35,3 +35,5 @@ while (!$ssid) {
     $ssid = retrieve_ssid(); #Try again!;
 }
 
+my %location_list = qw/BloodOfNorsemen home ap work/;
+return $ssid;
