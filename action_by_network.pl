@@ -28,10 +28,10 @@ sub retrieve_ssid {
     return $ssid; #Pass SSID back to function caller;
 }
 
-my $ssid = retrieve_ssid(); #Get network name!
+our $ssid = retrieve_ssid(); #Get network name, and share it around;
 while (!$ssid) {
     sleep 5; #Wait a bit, giving the interface some time to finalize connection;
-    logger("Waiting another second for ssid...\n") #Useful feedback, not so necessary;
+    logger("Waiting another second for ssid...\n") #Useful feedback, not totally necessary;
     $ssid = retrieve_ssid(); #Try again!;
 }
 
