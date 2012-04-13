@@ -4,11 +4,11 @@ use strict;
 use warnings;
 require qw/general_tools.pl/; 
 
-our $username; 
+our $username; #Grab username from parent script (action_by_network.pl);
 
 #These options should be grabbed from conf file and shared; will implement that later;
-my $host = "t"; #Host computer to connect to via SSH (this will reference SSH conf file, so it's OK to use aliases);
-my $port = "2002";
+my $host = 't'; #Host computer to connect to via SSH (this will reference SSH conf file, so it's OK to use aliases);
+my $port = 2002; #Port for tunnel; NOT the same as SSH port (which can be read from SSH conf file);
 
 sub close_tunnel {
     my $ssh_pid = `ps ax | grep "ssh -D 2002" | head -n 1`; #Grab last first line of ps output
