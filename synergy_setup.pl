@@ -5,16 +5,18 @@ use strict;
 use warnings;
 
 require qw/general_tools.pl/;
+our $ssid; #Get SSID from parent script (action_by_network.pl);
 
 ###Insert SSIDs and Synergy host addresses as key-value pairs, e.g. ssid hostname ssid hostname
 ###User is advised to use IP address of host for best compatibility with Synergy; 
 ###hostname.local syntax is also supported, but not as reliable (see Synergy documentation);
 my %host_list = qw/BloodOfNorsemen 10.0.0.30 ap 192.168.1.110/; 
+my $target_host = $host_list{$ssid}; #Get IP address to connect to from host_list;
 
 sub start_synergy {
     my $connect_to = shift; #Grab target machine to connect to from function call;
     logger("Connecting to $connect_to ...\n");  #A little feedback never hurt anyone;
-    kill_synergy;
+    kill_synergy; #In case there are any old instances running, kill them;
     my @custom_args = qw/--yscroll 29/; #Add anything else that should be run. yscroll option fixes bad scroll wheel behavior on Windows hosts;
     system("synergyc @custom_args $connect_to"); #Run the connection, using the target machine grabbed as shift;
 }
