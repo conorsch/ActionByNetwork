@@ -34,12 +34,12 @@ sub disconnect_monitor {
     run_as_user($username, $command);
 }
 
-my $check = run_as_user($username, "xrandr | grep $external_monitor");
+my $check = run_as_user($username, "xrandr | grep $external_monitor"); #Check for mention of external monitor, for analysis;
 chomp $check; #Probably necessary to remove trailing newline from $check variable;
 given ($check) {
-    when (/^$external_monitor connected/)    { connect_monitor($external_monitor); }
-    when (/^$external_monitor disconnected/) { disconnect_monitor($external_monitor); }
-    default                                  { logger("ERROR: problem while trying to connect to an external monitor."); } #Also do nothing;
+    when (/^$external_monitor connected/)    { connect_monitor($external_monitor); } #If monitor is there, set it up;
+    when (/^$external_monitor disconnected/) { disconnect_monitor($external_monitor); } #If monitor is absent, disable it;
+    default                                  { logger("ERROR: problem while trying to connect to an external monitor."); } #Do nothing;
 }
 
 1; #Since this script is reference in calls by other scripts, it must exit with True;
