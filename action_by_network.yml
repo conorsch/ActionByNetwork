@@ -11,8 +11,10 @@ command: monitor
 home:
     network: "BloodOfNorsemen"
     commands: 
-        - 'synergy'
-        - 'monitor'
-        - 'hosts'
+        synergy:
+            ip: 10.0.0.30
+            customargs: "--yscroll 43"
+        monitor: something2
+        hosts: something
 
 
