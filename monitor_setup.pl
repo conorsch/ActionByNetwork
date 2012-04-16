@@ -1,11 +1,16 @@
 #!/usr/bin/env perl 
 #This script sets up user-configured external monitors. It offers two functions,
 #one an action to be taken if a monitor is detected, and another if no external monitor is found.
+#It is strongly recommended to run this script on monitor state change (connect and disconnect).
+#This can be done by creating /etc/udev/rules.d/95-monitor_hotplug.rules, and place in it this line:
+#ACTION=="change", KERNEL=="card0", SUBSYSTEM=="drm", RUN+="/home/to/this/script/monitor_setup.pl"
+
 use warnings;
 use strict;
 use diagnostics;
 use feature "switch";
 use File::Basename 'dirname'; #Since root will execute this script, we'll need to figure out where it's run from;
+
 my $cwd = dirname($0); #Get the current working directory. $0 is the same of the currently running script;
 my @required_scripts = qw/general_tools.pl/; #Declare required scripts here, so fullpaths can be grabbed;
 foreach (@required_scripts) { #Let's look at all the scripts declared as required above;
