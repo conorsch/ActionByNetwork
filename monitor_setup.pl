@@ -1,15 +1,22 @@
-#!/usr/bin/perl 
+#!/usr/bin/env perl 
 #This script sets up user-configured external monitors. It offers two functions,
 #one an action to be taken if a monitor is detected, and another if no external monitor is found.
 use warnings;
 use strict;
 use diagnostics;
 use feature "switch";
-require qw/general_tools.pl/;
+use File::Basename 'dirname'; #Since root will execute this script, we'll need to figure out where it's run from;
+my $cwd = dirname($0); #Get the current working directory. $0 is the same of the currently running script;
+my @required_scripts = qw/general_tools.pl/; #Declare required scripts here, so fullpaths can be grabbed;
+foreach (@required_scripts) { #Let's look at all the scripts declared as required above;
+    s/(^.*$)/$cwd\/$1/; #Stitch together the path and the name of the required script;
+    require $_; #State the requirement;
+}
 
-our $username;
+our $username; #Import username from other scripts;
 
 my $external_monitor = $ARGV[0] || "VGA1"; #Which monitor should be configured? Assume VGA1 if none;
+$ENV{DISPLAY}=":0.0"; #Necessary to export DISPLAY, as this script will be called by root;
 my %monitor_settings = (
         #If using KDE, grab next line from ~/.kde/share/config/krandrrc after using System Settings 
         #'Displays' panel to configure monitor layout and orientation, then choose Save as Default
