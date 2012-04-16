@@ -14,18 +14,19 @@ my $config = YAML::Tiny->read( $config_file );
 my $commands = $config->[0]->{home}->{commands};
 my $network = $config->[0]->{home}->{network};
 my $user = $config->[0]->{user};
-my $home_options = $config->[0]->{home};
+my $home_options = $config->[1]->{home};
 
 my $locations = $config->[1];
 my @locations = hashref2array($locations);
 print "My locations look like: @locations\n";
+print "Home options ref points to: " . ref($home_options) . "\n";
 
 
 my @home_options = hashref2array($home_options);
 sub hashref2array {
     my $hashref = shift;
     my @array = (); #
-    foreach my $value (keys %$hashref) {
+    foreach my $value (sort keys %$hashref) {
         push @array,$value;
     }
     return @array;
