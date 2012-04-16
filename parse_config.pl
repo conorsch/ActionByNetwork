@@ -7,7 +7,7 @@ use warnings;
 use YAML::Tiny; #Sufficient for parsing YAML configuration file;
 use diagnostics;
 use 5.12.0; #There are 'say' calls in here;
-#require qw/general_tools.pl/; #Get necessary boilerplate;
+require qw/general_tools.pl/; #Get necessary boilerplate;
 
 #my $ssid = $ARGV[0] || retrieve_ssid(); #Get SSID from parent script; if none given, figure it out;
 my $ssid = "BloodOfNorsemen";
@@ -17,11 +17,6 @@ my $config_file = 'action_by_network.yml'; #This is the default name for a confi
 my $config = YAML::Tiny->read( $config_file ); #Import config file as a hash reference;
 
 #Let's start splitting up this hash reference into workable pieces;
-my $commands = $config->[0]->{home}->{commands};
-my $network = $config->[0]->{home}->{network};
-my $user = $config->[0]->{user};
-my $home_options = $config->[1]->{home};
-my $home_network = $config->[1]->{home}->{network};
 
 sub determine_location { #Let's figure out where we're at; 
     my $ssid = shift;
@@ -37,13 +32,13 @@ sub determine_location { #Let's figure out where we're at;
 
 our $location = determine_location($ssid); #Figure out where we are;
 say "Location has been determined to be: $location";
-#logger("Location has been determined to be: $location"); #Perhaps this should be included in function?;
+logger("Location has been determined to be: $location"); #Perhaps this should be included in function?;
 
 sub hashref2array { #Handy function for flattening hash references into lists;
     my $hashref = shift; #Unpack supplied hash reference;
-    my @array = (); #
-    foreach my $value (sort keys %$hashref) {
-        push @array,$value;
+    my @array = (); #Initialize array so keys from hash reference can be flatted into it;
+    foreach my $value (sort keys %$hashref) { #Sort keys, iterate through values;
+        push @array,$value; #Add that value to the flatted list created above;
     }
-    return @array;
+    return @array; #Once down, pass this flatted list back to function caller;
 }
