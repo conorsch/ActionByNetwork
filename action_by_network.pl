@@ -9,7 +9,6 @@ require qw/general_tools.pl monitor_setup.pl synergy_setup.pl/; #Import necessar
 
 my $interface = $ARGV[0]; #grab connection interface (e.g. wlan0) from NetworkManager as first argument passed;
 my $status = $ARGV[1]; #grab connection status (e.g. up, down) from NetworkManager as second argument passed;
-my %location_list = qw/BloodOfNorsemen home ap work/;
 
 sub retrieve_ssid {
     my $ssid = `iwgetid --raw`; #Grabs just SSID output, but with trailing newline (chomped below);
@@ -24,8 +23,9 @@ sub retrieve_ssid {
 }
 
 my $ssid = retrieve_ssid(); #Get network name!
-my $location = $location_list{$ssid}; #Determine where we are, based on wifi SSID;
+my $location = ...; #Determine location by calling child script; currently parse_config;
 given ($location) {
-    when (home)     {i...}
+    when (home)     {...} #Call necessary child scripts;
+    when (work)     {...} #Call necessary child scripts;
     ...
 }
