@@ -7,14 +7,26 @@
 #These options will apply to all network locations
 ---
 user: conor
-command: monitor
+supdawg: yo
+
+---
 home:
     network: "BloodOfNorsemen"
     commands: 
         synergy:
             ip: 10.0.0.30
-            customargs: "--yscroll 43"
-        monitor: something2
-        hosts: something
+            customargs: 
+        monitor: 
+        hosts: 
+work:
+    network: "ap"
+    commands: 
+        synergy:
+            ip: 192.168.1.110 
+            customargs: 
+        monitor:
+        hosts:
 
-
+other:
+    commands:
+        tunnel:
