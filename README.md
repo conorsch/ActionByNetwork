@@ -5,7 +5,7 @@ This script allows the user to configure various environments, identified by a w
 
 For example, when moving a personal laptop between home and work environments, Synergy keyboard and mouse sharing can be automated, as well as other variables set. In addition, when the computer connects to an unknown wifi network, such as in a coffee shop, SOCKS/proxy connections for privacy while surfing can be initiated automatically. (Currently there is no way to programatically enable and disable web proxies in browsers, so this still requires user intervention.)
 
-Future versions will seek for better desktop environment integration (e.g. KDE 4.7 shuld add system-wide SOCKS proxy support). Current supported functionality includes:
+Future versions will seek for better desktop environment integration (e.g. KDE 4.7 should add system-wide SOCKS proxy support). Current supported functionality includes:
 
 * Synergy connections
 * External monitor setup
