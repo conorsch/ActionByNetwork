@@ -9,17 +9,14 @@ use diagnostics;
 use 5.12.0; #There are 'say' calls in here;
 require qw/general_tools.pl/; #Get necessary boilerplate;
 
-#my $ssid = $ARGV[0] || retrieve_ssid(); #Get SSID from parent script; if none given, figure it out;
-my $ssid = "BloodOfNorsemen";
+my $ssid = $ARGV[0] || retrieve_ssid(); #Get SSID from parent script; if none given, figure it out;
 
 my $config_file = 'action_by_network.yml'; #This is the default name for a configuration file;
 #Better error-handling should be implemented, e.g. check ~/.abn/conf as well;
 my $config = YAML::Tiny->read( $config_file ); #Import config file as a hash reference;
 
-#Let's start splitting up this hash reference into workable pieces;
-
 sub determine_location { #Let's figure out where we're at; 
-    my $ssid = shift;
+    my $ssid = shift; #Unpack $ssid, supplied by function caller;
     my $locations = $config->[1]; #Create hash reference from second section of conf file;
     my @locations = hashref2array($locations); #Flatten hash reference into list;
     foreach my $location (@locations) { #Iterate through list of locations in conf;
