@@ -1,4 +1,4 @@
-#!/usr/bin/env perl 
+#!/usr/bin/perl 
 #This script sets up user-configured external monitors. It offers two functions,
 #one an action to be taken if a monitor is detected, and another if no external monitor is found.
 #It is strongly recommended to run this script on monitor state change (connect and disconnect).
