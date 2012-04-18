@@ -6,8 +6,8 @@ use warnings;
 
 require qw/general_tools.pl monitor_setup.pl synergy_setup.pl parse_config.pl/; #Import necessary subroutines;
 
-my $interface = $ARGV[0]; #grab connection interface (e.g. wlan0) from NetworkManager as first argument passed;
-my $status = $ARGV[1]; #grab connection status (e.g. up, down) from NetworkManager as second argument passed;
+my $network_interface = $ARGV[0]; #grab connection interface (e.g. wlan0) from NetworkManager as first argument passed;
+my $connection_up_or_down = $ARGV[1]; #grab connection status (e.g. up, down) from NetworkManager as second argument passed;
 
 my $ssid = retrieve_ssid(); #Get network name!
 my $location = ...; #Determine location by calling child script; currently parse_config;
