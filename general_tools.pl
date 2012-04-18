@@ -6,6 +6,18 @@ use diagnostics;
 
 our $username = "conor"; #Insert username to run commands as (e.g. synergyc, xrandr);
 
+sub retrieve_ssid {
+    my $ssid = `iwgetid --raw`; #Grabs just SSID output, but with trailing newline (chomped below);
+    chomp $ssid; #Necessary to remove trailing newline so string is pluggable in function calls;
+    while (!$ssid) {
+        sleep 5; #Wait a bit, giving the interface some time to finalize connection;
+        logger("Determining SSID for current connection...\n"); #Useful feedback, not so necessary;
+        $ssid = retrieve_ssid(); #Try again!;
+    }
+    logger("Action_by_Network script confirms network SSID to be: '$ssid'\n");
+    return $ssid; #Pass SSID back to function caller;
+}
+
 sub logger {
     my $message = shift; #Grab string to be logged from function caller;
     system("logger -s ActionByNetwork: '$message'"); #Send to system log;
