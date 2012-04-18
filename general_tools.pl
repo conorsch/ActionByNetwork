@@ -6,6 +6,14 @@ use diagnostics;
 
 our $username = "conor"; #Insert username to run commands as (e.g. synergyc, xrandr);
 
+sub check_depends { #Function to ensure the supplied binaries are present on system;
+    ...;
+}
+
+sub check_network_state { #Find out whether there is currently an active network connection;
+    ...;
+}
+
 sub retrieve_ssid {
     my $ssid = `iwgetid --raw`; #Grabs just SSID output, but with trailing newline (chomped below);
     chomp $ssid; #Necessary to remove trailing newline so string is pluggable in function calls;
