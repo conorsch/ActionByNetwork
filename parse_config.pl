@@ -20,9 +20,10 @@ sub determine_location { #Let's figure out where we're at;
     my $locations = $config->[1]; #Create hash reference from second section of conf file;
     my @locations = hashref2array($locations); #Flatten hash reference into list;
     foreach my $location (@locations) { #Iterate through list of locations in conf;
-        my $candidate_location = $config->[1]->{$location}->{network}; #Name possibility;
-        next unless $candidate_location eq $ssid; #Does our possibility match the ssid?;
-        return $candidate_location; #If so, pass it back!;
+        next if $location eq "other"; #other/roaming doesn't have a network, so skip it;
+        my $candidate_network = $config->[1]->{$location}->{network}; #Name possibility;
+        next unless $candidate_network eq $ssid; #Does our possibility match the ssid?;
+        return $location; #If so, pass it back!;
     }
     return "other"; #If we can't find the SSID in the configuration, assume roaming;
 }
