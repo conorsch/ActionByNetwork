@@ -5,13 +5,11 @@ use strict;
 use warnings;
 
 require qw/general_tools.pl/;
-our $ssid; #Get SSID from parent script (action_by_network.pl);
 
 ###Insert SSIDs and Synergy host addresses as key-value pairs, e.g. ssid hostname ssid hostname
 ###User is advised to use IP address of host for best compatibility with Synergy; 
 ###hostname.local syntax is also supported, but not as reliable (see Synergy documentation);
-my %host_list = qw/BloodOfNorsemen 10.0.0.30 ap 192.168.1.110/; 
-my $target_host = $host_list{$ssid}; #Get IP address to connect to from host_list;
+my $target_host = $ARGV[0]; #Get IP address to connect to from host_list;
 
 sub start_synergy {
     my $connect_to = shift; #Grab target machine to connect to from function call;
