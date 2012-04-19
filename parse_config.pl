@@ -32,11 +32,4 @@ our $location = determine_location($ssid); #Figure out where we are;
 say "Location has been determined to be: $location";
 logger("Location has been determined to be: $location"); #Perhaps this should be included in function?;
 
-sub hashref2array { #Handy function for flattening hash references into lists;
-    my $hashref = shift; #Unpack supplied hash reference;
-    my @array = (); #Initialize array so keys from hash reference can be flatted into it;
-    foreach my $value (sort keys %$hashref) { #Sort keys, iterate through values;
-        push @array,$value; #Add that value to the flatted list created above;
-    }
-    return @array; #Once down, pass this flatted list back to function caller;
-}
+1; #Since this script is reference in calls by other scripts, it must exit with True;
