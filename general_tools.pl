@@ -7,11 +7,19 @@ use diagnostics;
 our $username = "conor"; #Insert username to run commands as (e.g. synergyc, xrandr);
 
 sub check_depends { #Function to ensure the supplied binaries are present on system;
-    ...;
+    my @dependencies = @_; #Unpack list of programs to check installed status;
+    my @missing_packages; #Initialize array for storing names of packages not installed;
+    foreach my $package (@dependencies) {
+        run_as_user("which $package"); #which command returns 0 if found, 1 on failure;
+        push @missing_packages, $package if $? != 0; #Not sure whether BASH $? works here;
+    }
+    return @missing_packages if exists $missing_packages[0]; #Return array if not empty;
 }
 
 sub check_network_state { #Find out whether there is currently an active network connection;
-    ...;
+    my $check = `nmcli nm | tail -n 1 | awk '{print $2}'`; #Find out whether connected;
+    return 1 if $check eq "connected"; #If 'connected' is found, then report True; 
+    return; #Otherwise, bare return (false);
 }
 
 sub retrieve_ssid {
