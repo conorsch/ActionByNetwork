@@ -32,4 +32,12 @@ our $location = determine_location($ssid); #Figure out where we are;
 say "Location has been determined to be: $location";
 logger("Location has been determined to be: $location"); #Perhaps this should be included in function?;
 
+sub find_commands { #Once location is known, next step is to build up commands;
+    my $location = shift; #Unpack location, supplied by function caller;
+    my $commands_to_run = $config->[1]->{$location}->{commands}; #Create hash reference from second section of conf file;
+    my @commands_to_run = hashref2array($commands_to_run); #Flatten hash reference into list;
+    say "These are the commands that should be run: @commands_to_run";
+}
+find_commands($location);
+
 1; #Since this script is reference in calls by other scripts, it must exit with True;
