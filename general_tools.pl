@@ -45,6 +45,15 @@ sub run_as_user {
     return $result; #Pass output from command back to function caller;
 }
 
+sub hashref2array { #Handy function for flattening hash references into lists;
+    my $hashref = shift; #Unpack supplied hash reference;
+    my @array = (); #Initialize array so keys from hash reference can be flatted into it;
+    foreach my $value (sort keys %$hashref) { #Sort keys, iterate through values;
+        push @array,$value; #Add that value to the flatted list created above;
+    }
+    return @array; #Once down, pass this flatted list back to function caller;
+}
+
 sub request_interfaces {
 #This function creates a list of possible network interfaces on the system, ignoring the loopback interface;
     my @interfaces; #Set up a list to store interface values in;
