@@ -7,7 +7,7 @@ use warnings;
 use YAML::Tiny; #Sufficient for parsing YAML configuration file;
 use diagnostics;
 use 5.12.0; #There are 'say' calls in here;
-require qw/general_tools.pl/; #Get necessary boilerplate;
+require qw/general_tools.pl synergy_setup.pl/; #Get necessary boilerplate;
 
 my $ssid = $ARGV[0] || retrieve_ssid(); #Get SSID from parent script; if none given, figure it out;
 
@@ -31,13 +31,30 @@ sub determine_location { #Let's figure out where we're at;
 our $location = determine_location($ssid); #Figure out where we are;
 say "Location has been determined to be: $location";
 logger("Location has been determined to be: $location"); #Perhaps this should be included in function?;
+my @commands = find_commands($location); #Get list of commands to be run for present location;
+run_commands(@commands); #Run necessary commands; 
 
 sub find_commands { #Once location is known, next step is to build up commands;
     my $location = shift; #Unpack location, supplied by function caller;
     my $commands_to_run = $config->[1]->{$location}->{commands}; #Create hash reference from second section of conf file;
     my @commands_to_run = hashref2array($commands_to_run); #Flatten hash reference into list;
     say "These are the commands that should be run: @commands_to_run";
+    return @commands_to_run; #Pass back list of commands to run;
 }
-find_commands($location);
+
+sub run_commands {
+    my @commands = @_; #Unpack list of commands to run from caller;
+    foreach my $command (@commands) { #Look at each command;
+        given ($command) { #
+            when (/synergy/) { 
+                my $target_host = $config[1]->{$location}->{commands}->{synergy}->{ip};    
+                synergy_setup.pl($target_host);  
+            }
+            when (/tunnel/) { 
+                ...; 
+            }
+        }
+    }
+}
 
 1; #Since this script is reference in calls by other scripts, it must exit with True;
