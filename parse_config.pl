@@ -18,11 +18,11 @@ foreach (@required_scripts) { #Let's look at all the scripts declared as require
 
 our $location;
 
+#More thorough conf-file finding should be implemented, e.g. check ~/.abn/conf as well;
 my $config_file = 'action_by_network.yml'; #This is the default name for a configuration file;
-logger("conf file looks like $config_file");
 $config_file =~ s/(^.*$)/$cwd\/$1/; #Stitch together the path and the name of the conf file;
-logger("conf file looks like $config_file");
-#Better error-handling should be implemented, e.g. check ~/.abn/conf as well;
+logger("conf file looks like $config_file"); #Debugging feedback, will remove later;
+
 my $config = YAML::Tiny->read( $config_file ); #Import config file as a hash reference;
 
 sub determine_location { #Let's figure out where we're at; 
