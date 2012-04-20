@@ -3,13 +3,16 @@
 #and to a user-specified list of hosts and IP addresses.
 use strict;
 use warnings;
+use diagnostics;
+use 5.12.0;
+use File::Basename 'dirname'; #Since root will execute this script, we'll need to figure out where it's run from;
 
-require qw/general_tools.pl/;
-
-###Insert SSIDs and Synergy host addresses as key-value pairs, e.g. ssid hostname ssid hostname
-###User is advised to use IP address of host for best compatibility with Synergy; 
-###hostname.local syntax is also supported, but not as reliable (see Synergy documentation);
-my $target_host = $ARGV[0]; #Get IP address to connect to from host_list;
+my $cwd = dirname($0); #Get the current working directory. $0 is the same of the currently running script;
+my @required_scripts = qw/general_tools.pl/; #Declare required scripts here, so fullpaths can be grabbed;
+foreach (@required_scripts) { #Let's look at all the scripts declared as required above;
+    s/(^.*$)/$cwd\/$1/; #Stitch together the path and the name of the required script;
+    require $_; #State the requirement;
+}
 
 sub start_synergy {
     my $connect_to = shift; #Grab target machine to connect to from function call;
@@ -24,7 +27,5 @@ sub kill_synergy {
     system("/usr/bin/killall synergyc") unless (!$pid); #Ensure that no conflicting Synergy client instances are running (unless there isn't one);
     sleep 2; #Just playing nice here, letting synergyc get killed, probably isn't necessary;
 }
-
-#return if (@ARGV[0] = 0); #Exit if no target was supplied by caller;
 
 1; #Since this script is called by others, it must exit True;
