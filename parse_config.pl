@@ -16,7 +16,7 @@ foreach (@required_scripts) { #Let's look at all the scripts declared as require
     require $_; #State the requirement;
 }
 
-our $location;
+our $location; #Declare location variable as shared, so other scripts have access to it; 
 
 #More thorough conf-file finding should be implemented, e.g. check ~/.abn/conf as well;
 my $config_file = 'action_by_network.yml'; #This is the default name for a configuration file;
