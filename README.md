@@ -1,6 +1,5 @@
-=ActionByNetwork=
-
-NOT CURRENTLY FUNCTIONAL. This README will be updated when reliable functionality can be expected.
+ActionByNetwork
+---------------
 
 This script allows the user to configure various environments, identified by a wireless network SSID, in which certain scripts are run.
 
@@ -8,7 +7,7 @@ For example, when moving a personal laptop between home and work environments, S
 
 Future versions will seek for better desktop environment integration (e.g. KDE 4.7 should add system-wide SOCKS proxy support). Current supported functionality includes:
 
-* [none] =(
+* synergy connections
 
 To do: 
 
