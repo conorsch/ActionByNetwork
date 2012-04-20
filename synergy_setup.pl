@@ -13,7 +13,7 @@ my $target_host = $ARGV[0]; #Get IP address to connect to from host_list;
 
 sub start_synergy {
     my $connect_to = shift; #Grab target machine to connect to from function call;
-    logger("Connecting to $connect_to ...\n");  #A little feedback never hurt anyone;
+    logger("Connecting to Synergy server at $connect_to ...\n");  #A little feedback never hurt anyone;
     kill_synergy(); #In case there are any old instances running, kill them;
     my @custom_args = qw/--yscroll 29/; #Add anything else that should be run. yscroll option fixes bad scroll wheel behavior on Windows hosts;
     system("synergyc @custom_args $connect_to"); #Run the connection, using the target machine grabbed as shift;
@@ -26,6 +26,5 @@ sub kill_synergy {
 }
 
 #return if (@ARGV[0] = 0); #Exit if no target was supplied by caller;
-start_synergy($target_host);
 
 1; #Since this script is called by others, it must exit True;
