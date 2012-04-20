@@ -1,5 +1,6 @@
 =ActionByNetwork=
 
+NOT CURRENTLY FUNCTIONAL. This README will be updated when reliable functionality can be expected.
 
 This script allows the user to configure various environments, identified by a wireless network SSID, in which certain scripts are run.
 
@@ -7,11 +8,11 @@ For example, when moving a personal laptop between home and work environments, S
 
 Future versions will seek for better desktop environment integration (e.g. KDE 4.7 should add system-wide SOCKS proxy support). Current supported functionality includes:
 
-* Synergy connections
-* External monitor setup
+* [none] =(
 
 To do: 
 
+* PID handling of parent script and various subscripts, for cleaner starts and stops
 * Management of remote shares (including unmounting before disconnect to prevent D-state processes in file browsers)
 * Management of SSH tunnels (primarily for SOCKS-based secure web browsing)
 * Management of custom hosts files
