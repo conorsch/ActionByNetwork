@@ -30,6 +30,6 @@ given ($connection_up_or_down) { #Examine network connection status (up or down)
         ...; #Shutdown procedures such as removing connections should be implemented here;
     }
     default {
-        logger("Network connection status could not be established; taking no action.";
+        logger("Network connection status could not be established; taking no action.");
     }
 }
