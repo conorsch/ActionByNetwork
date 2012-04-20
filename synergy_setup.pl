@@ -14,12 +14,14 @@ foreach (@required_scripts) { #Let's look at all the scripts declared as require
     require $_; #State the requirement;
 }
 
+our $username; #Import username to run synergy command from other scripts;
+
 sub start_synergy {
     my $connect_to = shift; #Grab target machine to connect to from function call;
     logger("Connecting to Synergy server at $connect_to ...\n");  #A little feedback never hurt anyone;
     kill_synergy(); #In case there are any old instances running, kill them;
     my @custom_args = qw/--yscroll 29/; #Add anything else that should be run. yscroll option fixes bad scroll wheel behavior on Windows hosts;
-    system("synergyc @custom_args $connect_to"); #Run the connection, using the target machine grabbed as shift;
+    run_as_user($username, "synergyc $connect_to"); #Run the connection, using the target machine grabbed as shift;
 }
 
 sub kill_synergy {
