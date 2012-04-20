@@ -24,12 +24,12 @@ sub check_network_state { #Find out whether there is currently an active network
 
 sub retrieve_ssid {
     my $ssid = `iwgetid --raw`; #Grabs just SSID output, but with trailing newline (chomped below);
-    chomp $ssid; #Necessary to remove trailing newline so string is pluggable in function calls;
     while (!$ssid) {
         sleep 5; #Wait a bit, giving the interface some time to finalize connection;
-        logger("Determining SSID for current connection...\n"); #Useful feedback, not so necessary;
-        $ssid = retrieve_ssid(); #Try again!;
+        logger("Determining SSID for current connection ($ssid)...\n"); #Useful feedback, not so necessary;
+        my $ssid = `iwgetid --raw`; #Try again!;
     }
+    chomp $ssid; #Necessary to remove trailing newline so string is pluggable in function calls;
     logger("Action_by_Network script confirms network SSID to be: '$ssid'\n");
     return $ssid; #Pass SSID back to function caller;
 }
