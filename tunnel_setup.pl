@@ -2,8 +2,13 @@
 #This script opens or closes SSH tunnels as a dynamic SOCKS proxy.
 use strict;
 use warnings;
-require qw/general_tools.pl/; 
 
+my $cwd = dirname($0); #Get the current working directory. $0 is the same of the currently running script;
+my @required_scripts = qw/general_tools.pl/; #Declare required scripts here, so fullpaths can be grabbed;
+foreach (@required_scripts) { #Let's look at all the scripts declared as required above;
+    s/(^.*$)/$cwd\/$1/; #Stitch together the path and the name of the required script;
+    require $_; #State the requirement;
+}
 our $username; #Grab username from parent script (action_by_network.pl);
 
 #These options should be grabbed from conf file and shared; will implement that later;
