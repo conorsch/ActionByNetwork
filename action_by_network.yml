@@ -26,6 +26,11 @@ work:
         synergy:
             ip: 192.168.1.110 
             customargs: 
+        tunnel: 
+            hostname: t
+            username: conor
+            remote_port: 2773
+            local_port: 2002
         monitor:
         hosts:
 
