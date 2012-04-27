@@ -25,7 +25,7 @@ $ENV{DISPLAY}=":0.0"; #Necessary to export DISPLAY, as this script will be calle
 my %monitor_settings = (
         #If using KDE, grab next line from ~/.kde/share/config/krandrrc after using System Settings 
         #'Displays' panel to configure monitor layout and orientation, then choose Save as Default
-        VGA1 => 'xrandr --output LVDS1 --pos 0x860 --mode 1366x768 --refresh 60.0186\nxrandr --output VGA1 --pos 1366x0 --mode 2048x1152 --refresh 59.9087\nxrandr --output LVDS1 --primary',
+        VGA1 => 'xrandr --output LVDS1 --pos 0x860 --mode 1366x768 --refresh 60.0186\nxrandr --output VGA1 --pos 1366x0 --mode 2048x1152 --refresh 59.9087\nxrandr --output VGA1 --primary',
         #DVI1 => '',
         #HDMI1 => '',
         );
@@ -48,6 +48,7 @@ sub disconnect_monitor {
 
 my $check = run_as_user($username, "xrandr | grep $external_monitor"); #Check for mention of external monitor, for analysis;
 chomp $check; #Probably necessary to remove trailing newline from $check variable;
+logger("MONITOR CHECK OUTPUT LOOKS LIKE: $check");
 given ($check) {
     when (/^$external_monitor connected/)    { connect_monitor($external_monitor); } #If monitor is there, set it up;
     when (/^$external_monitor disconnected/) { disconnect_monitor($external_monitor); } #If monitor is absent, disable it;
