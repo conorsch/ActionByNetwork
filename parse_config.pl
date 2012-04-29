@@ -10,7 +10,7 @@ use 5.12.0; #There are 'say' calls in here;
 use File::Basename 'dirname'; #Since root will execute this script, we'll need to figure out where it's run from;
 
 my $cwd = dirname($0); #Get the current working directory. $0 is the same of the currently running script;
-my @required_scripts = qw/general_tools.pl synergy_setup.pl/; #Declare required scripts here, so fullpaths can be grabbed;
+my @required_scripts = qw/general_tools.pl synergy_setup.pl monitor_setup.pl/; #Declare required scripts here, so fullpaths can be grabbed;
 foreach (@required_scripts) { #Let's look at all the scripts declared as required above;
     s/(^.*$)/$cwd\/$1/; #Stitch together the path and the name of the required script;
     require $_; #State the requirement;
@@ -21,9 +21,13 @@ our $location; #Declare location variable as shared, so other scripts have acces
 #More thorough conf-file finding should be implemented, e.g. check ~/.abn/conf as well;
 my $config_file = 'action_by_network.yml'; #This is the default name for a configuration file;
 $config_file =~ s/(^.*$)/$cwd\/$1/; #Stitch together the path and the name of the conf file;
+#my $prefered_config_file = "/home/$username/.abn.conf/"; #This wouldn't actually work;
+#if ( -e $preferred_config_file ) { ...; } #To be implemented later;
+
 logger("conf file looks like $config_file"); #Debugging feedback, will remove later;
 
 my $config = YAML::Tiny->read( $config_file ); #Import config file as a hash reference;
+#our $username = $config->{0}->{user}; #Grab username from conf file, share it around;
 
 sub determine_location { #Let's figure out where we're at; 
     my $ssid = shift; #Unpack $ssid, supplied by function caller;
@@ -36,6 +40,10 @@ sub determine_location { #Let's figure out where we're at;
         return $location; #If so, pass it back!;
     }
     return "other"; #If we can't find the SSID in the configuration, assume roaming;
+}
+
+sub find_config_file {
+    
 }
 
 sub find_commands { #Once location is known, next step is to build up commands;
@@ -54,6 +62,12 @@ sub run_commands {
                 say "Found the synergy target! It is: $target_host";
                 start_synergy($target_host);  
             }
+            when (/monitor/) {
+                system("monitor_setup.pl");
+                say "TESTING MONITOR ACTION NOW";
+                logger("TESTING MONITOR ACTION NOW");
+            }
+
         }
     }
 }
