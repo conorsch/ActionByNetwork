@@ -42,7 +42,7 @@ sub connect_monitor {
 sub disconnect_monitor {
     my $monitor = shift; #Assign easy name to monitor passed from caller;
     logger("External monitor $monitor does not appear to be connected; maintaining single display mode."); #Feedback;
-    my $command = 'xrandr --output $monitor --off\nxrandr --output LVDS1 --on'; #Disable that external monitor, enable internal (to be safe);
+    my $command = "xrandr --output $monitor --off\nxrandr --output LVDS1 --on"; #Disable that external monitor, enable internal (to be safe);
     run_as_user($username, $command);
 }
 
