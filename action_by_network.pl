@@ -9,6 +9,7 @@ use ActionByNetwork;
 #grab interface (e.g. wlan0) and direction of connection (e.g. up, down) from NetworkManager;
 my ($network_interface, $state_change) = @ARGV;
 #my $location; #initialize variable in global scope;
+ActionByNetwork::logger("THE ARGS ARE: @ARGV");
 
 given ($state_change) { #Examine network connection status (up or down);
 

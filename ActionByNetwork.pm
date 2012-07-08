@@ -44,7 +44,7 @@ use Data::Dumper;
 my $config_file = '/home/conor/gits/ActionByNetwork/abn.conf';
 my $config = Config::Simple->new( $config_file ) #Import config file as a hash reference;
     or die "Unable to read configuration file at '$config_file'";
-
+my %config = $config->vars;
 
 
 sub retrieve_ssid { #return SSID of current wireless connection;
@@ -86,10 +86,9 @@ sub determine_location { #return current location by looking up SSID in conf fil
     say "DUMPER: " . Dumper($config);
     my $work_network = $config->param('work.ssid');
     say "WORK NETWORK looks like: '$work_network'";
-    my %config_vars = $config->vars;
     my $location; #initialize variable in proper scope;
     my @locations; #initialize variable in proper scope;
-    foreach my $preference (sort keys %config_vars) {
+    foreach my $preference (sort keys %config) {
         chomp $preference;
         my @block_pref = split('\.', $preference);
         my ($location, $option) = @block_pref;
@@ -127,8 +126,12 @@ sub parse_config { #read in config file for ActionByNetwork;
 ##### Cleanup commands, for when network goes down and processes should be killed;
 sub cleanup_commands { #kill any processes before network goes down;
     my @commands_to_kill = qw/synergyc/;
+    my $command = 'synergyc';
+    logger("Killing exiting $command process...");
+    system("/usr/bin/killall", $command) ; #Ensure that no conflicting Synergy client instances are running (unless there isn't one);
     foreach my $command (@commands_to_kill) { #look at each command in the list;
-        system("/usr/bin/killall", $command) unless (!$command); #Ensure that no conflicting Synergy client instances are running (unless there isn't one);
+        logger("Killing exiting $command process...");
+        system("/usr/bin/killall", $command) ; #Ensure that no conflicting Synergy client instances are running (unless there isn't one);
     }
 }
 
@@ -141,11 +144,8 @@ sub check_network_state { #Find out whether there is currently an active network
 
 sub get_commands { #return list of commands to be run for current location;
     my $location = shift; #unpack location from function caller;
-    my $commands_to_run = $config->[1]->{$location}->{commands}; #build hashreffrom second section of conf file;
-    my @commands_to_run; #initialize array in proper scope;
-    foreach my $value (sort keys %$commands_to_run) { #Sort keys, iterate through values;
-        push @commands_to_run,$value; #Add that value to the flatted list created above;
-    }
+    my @commands_to_run = $config{"$location.commands"} #read list of commands to run from config;
+        or return; #return failure if no commands are given;
     return @commands_to_run; #Pass back list of commands to run;
 }
 
@@ -156,7 +156,7 @@ sub run_commands { #run specified commands according to config file;
         given ($command) { #begin case statement for commands;
 
             when (/synergy/) { #if specified command is 'synergy';
-                my $target_host = $config->[1]->{$location}->{commands}->{synergy}->{ip};    
+                my $target_host = $config{"$location.synergy"};    
                 logger("Starting synergyc...");
                 system('/usr/bin/synergyc', $target_host); #start synergyc, connecting to host;
             }
