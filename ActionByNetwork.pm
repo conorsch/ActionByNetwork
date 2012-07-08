@@ -35,10 +35,17 @@ use warnings;
 use feature qw/switch say/; #case statements and say is better than print;
 use Config::Simple; #for configuration file processing;
 use YAML::Tiny;
+use Data::Dumper;
 
-my $config_file = '/home/conor/gits/ActionByNetwork/action_by_network.yml';
-my $config = YAML::Tiny->read( $config_file ) #Import config file as a hash reference;
+#my $config_file = '/home/conor/gits/ActionByNetwork/action_by_network.yml';
+#my $config = YAML::Tiny->read( $config_file ) #Import config file as a hash reference;
+#    or die "Unable to read configuration file at '$config_file'";
+
+my $config_file = '/home/conor/gits/ActionByNetwork/abn.conf';
+my $config = Config::Simple->new( $config_file ) #Import config file as a hash reference;
     or die "Unable to read configuration file at '$config_file'";
+
+
 
 sub retrieve_ssid { #return SSID of current wireless connection;
     my $ssid = `/sbin/iwgetid --raw`; #capture SSID from iwgetid system call;
@@ -76,16 +83,40 @@ sub logger { #write to /var/log/syslog using 'logger -s';
 
 sub determine_location { #return current location by looking up SSID in conf file;
     my $ssid = retrieve_ssid; #get ssid from subroutine;
-    my $locations = $config->[1]; #create hash reference from second section of conf file;
+    say "DUMPER: " . Dumper($config);
+    my $work_network = $config->param('work.ssid');
+    say "WORK NETWORK looks like: '$work_network'";
+    my %config_vars = $config->vars;
     my $location; #initialize variable in proper scope;
-    if ( exists $locations->{$ssid} ) { #if current SSID exists in configuration file;
-        $location = $locations->{$ssid}; #retrieve location for this SSID;
+    my @locations; #initialize variable in proper scope;
+    foreach my $preference (sort keys %config_vars) {
+        chomp $preference;
+        my @block_pref = split('\.', $preference);
+        my ($location, $option) = @block_pref;
+        push @locations, $location;
+#        say "LOCATION: $location OPTION: $option VALUE: $config_vars{$key}";
     }
-    else { #if SSID is not found in conf file;
-        $location = 'other'; #assume roaming and report location as 'other';
+    foreach my $loc (@locations) { 
+        my $ssid_pref = $config->param("$loc.ssid");
+        next unless defined($ssid_pref);
+        if ($ssid_pref eq $ssid) { 
+            say "SUCCESS! $ssid_pref" if $ssid_pref eq $ssid;
+            $location = $loc;
+            last;
+        }
     }
 
+#    if ( exists $locations->{network} ) { #if current SSID exists in configuration file;
+#
+#        say "LOCATION looks like: '$location'";
+#        $location = $locations->{$ssid}; #retrieve location for this SSID;
+#    }
+#    else { #if SSID is not found in conf file;
+#        $location = 'other'; #assume roaming and report location as 'other';
+#    }
+#
     logger("Location has been determined to be '$location'");
+    say "Location has been determined to be '$location'";
     return $location; #pass current location back to function caller;
 }
 sub parse_config { #read in config file for ActionByNetwork; 
