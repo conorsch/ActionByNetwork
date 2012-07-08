@@ -83,9 +83,6 @@ sub logger { #write to /var/log/syslog using 'logger -s';
 
 sub determine_location { #return current location by looking up SSID in conf file;
     my $ssid = retrieve_ssid; #get ssid from subroutine;
-    say "DUMPER: " . Dumper($config);
-    my $work_network = $config->param('work.ssid');
-    say "WORK NETWORK looks like: '$work_network'";
     my $location; #initialize variable in proper scope;
     my @locations; #initialize variable in proper scope;
     foreach my $preference (sort keys %config) {
@@ -99,7 +96,6 @@ sub determine_location { #return current location by looking up SSID in conf fil
         my $ssid_pref = $config->param("$loc.ssid");
         next unless defined($ssid_pref);
         if ($ssid_pref eq $ssid) { 
-            say "SUCCESS! $ssid_pref" if $ssid_pref eq $ssid;
             $location = $loc;
             last;
         }
@@ -115,7 +111,6 @@ sub determine_location { #return current location by looking up SSID in conf fil
 #    }
 #
     logger("Location has been determined to be '$location'");
-    say "Location has been determined to be '$location'";
     return $location; #pass current location back to function caller;
 }
 sub parse_config { #read in config file for ActionByNetwork; 
@@ -126,12 +121,11 @@ sub parse_config { #read in config file for ActionByNetwork;
 ##### Cleanup commands, for when network goes down and processes should be killed;
 sub cleanup_commands { #kill any processes before network goes down;
     my @commands_to_kill = qw/synergyc/;
-    my $command = 'synergyc';
-    logger("Killing exiting $command process...");
-    system("/usr/bin/killall", $command) ; #Ensure that no conflicting Synergy client instances are running (unless there isn't one);
+#    system("/usr/bin/killall", $command) ; #Ensure that no conflicting Synergy client instances are running (unless there isn't one);
     foreach my $command (@commands_to_kill) { #look at each command in the list;
-        logger("Killing exiting $command process...");
-        system("/usr/bin/killall", $command) ; #Ensure that no conflicting Synergy client instances are running (unless there isn't one);
+        logger("Killing existing $command process...");
+#        run_as_user('conor', "/usr/bin/killall -9 $command") ; #Ensure that no conflicting Synergy client instances are running (unless there isn't one);
+        system("/usr/bin/killall -9 $command") ; #Ensure that no conflicting Synergy client instances are running (unless there isn't one);
     }
 }
 
@@ -141,6 +135,11 @@ sub check_network_state { #Find out whether there is currently an active network
     return; #Otherwise, bare return (false);
 }
  
+sub run_as_user {
+    my ($username, $command) = @_; #Grab both username to run as and command to run from function caller;
+    my $result = `/bin/su $username -c '$command'`; #Run command, grabbing output just in case;
+    return $result; #Pass output from command back to function caller;
+}
 
 sub get_commands { #return list of commands to be run for current location;
     my $location = shift; #unpack location from function caller;
@@ -158,7 +157,10 @@ sub run_commands { #run specified commands according to config file;
             when (/synergy/) { #if specified command is 'synergy';
                 my $target_host = $config{"$location.synergy"};    
                 logger("Starting synergyc...");
-                system('/usr/bin/synergyc', $target_host); #start synergyc, connecting to host;
+                my $synergy_command = "/usr/bin/synergyc $target_host";
+                my $username = 'conor';
+#                system('/usr/bin/synergyc', $target_host); #start synergyc, connecting to host;
+                run_as_user($username, $synergy_command);
             }
 
             when (/monitor/) { #if specified command is 'monitor';
@@ -183,3 +185,4 @@ sub run_commands { #run specified commands according to config file;
         }
     }
 }
+1;
