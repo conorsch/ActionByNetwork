@@ -29,21 +29,15 @@ logger("conf file looks like $config_file"); #Debugging feedback, will remove la
 my $config = YAML::Tiny->read( $config_file ); #Import config file as a hash reference;
 #our $username = $config->{0}->{user}; #Grab username from conf file, share it around;
 
-sub determine_location { #Let's figure out where we're at; 
-    my $ssid = shift; #Unpack $ssid, supplied by function caller;
-    my $locations = $config->[1]; #Create hash reference from second section of conf file;
-    my @locations = hashref2array($locations); #Flatten hash reference into list;
-    foreach my $location (@locations) { #Iterate through list of locations in conf;
-        next if $location eq "other"; #other/roaming doesn't have a network, so skip it;
-        my $candidate_network = $config->[1]->{$location}->{network}; #Name possibility;
-        next unless $candidate_network eq $ssid; #Does our possibility match the ssid?;
-        return $location; #If so, pass it back!;
+sub determine_location { #return current location by looking up SSID in conf file;
+    my $ssid = shift; #unpack $ssid from function caller;
+    my $locations = $config; #create hash reference from second section of conf file;
+    if ( exists $locations->{$ssid} ) { #if current SSID exists in configuration file;
+        return $locations->{$ssid}; #pass current location back to function caller;
     }
-    return "other"; #If we can't find the SSID in the configuration, assume roaming;
-}
-
-sub find_config_file {
-    
+    else { #if SSID is not found in conf file;
+        return 'other'; #assume roaming and report location as 'other';
+    }
 }
 
 sub find_commands { #Once location is known, next step is to build up commands;
