@@ -113,10 +113,6 @@ sub determine_location { #return current location by looking up SSID in conf fil
     logger("Location has been determined to be '$location'");
     return $location; #pass current location back to function caller;
 }
-sub parse_config { #read in config file for ActionByNetwork; 
-    my $config_file = shift;
-    my $config = YAML::Tiny->read( $config_file ); #Import config file as a hash reference;
-}
 
 ##### Cleanup commands, for when network goes down and processes should be killed;
 sub cleanup_commands { #kill any processes before network goes down;
@@ -144,7 +140,7 @@ sub run_as_user {
 sub get_commands { #return list of commands to be run for current location;
     my $location = shift; #unpack location from function caller;
     my @commands_to_run = $config{"$location.commands"} #read list of commands to run from config;
-        or return; #return failure if no commands are given;
+        or return; #return failure if no commands are specified in config file;
     return @commands_to_run; #Pass back list of commands to run;
 }
 
@@ -169,7 +165,8 @@ sub run_commands { #run specified commands according to config file;
             }
 
             when (/custom/) { #if user has specified command in conf file;
-                my $custom_command = $config->[1]->{$location}->{commands}->{custom};    
+#                my $custom_command = $config->[1]->{$location}->{commands}->{custom};    
+                my $custom_command = $config{"$location.custom"};    
                 given ($custom_command) { #analyze user-specified command;
                     when (/rm /) { #if it looks like there's a remove command;
                         die "Unable to execute custom command '$custom_command'; Looks like rm!";
