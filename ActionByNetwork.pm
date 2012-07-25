@@ -8,26 +8,19 @@ use ActionByNetwork;
 
 =head1 DESCRIPTION
 
-Creates and maintains dotfile of user preferences for notifications about quota usage.
-
-Methods to build list of valid home directories, update user preferences, and retrieve 
-user preferences. Supports customizing frequency of notications and percent of quota 
-usage that generates email. 
+Allows for automation of tasks based on location, as defined by network ID. 
 
 =head2 Methods
 
 =over 4
 
-=item * get_users([$home_pattern])
+=item * retrieve_ssid([$home_pattern])
 
-Walks through the /etc/passwd file and builds a list of valid home directories. 
-Function supports argument of pattern to identify valid homes. If none is given,
-pattern defaults to '^/home[0-9]+/', to match SEAS user home directories.
-
-The function returns two hash references, with the structures: 
+Gets SSID.
 
 #===============================================================================
 =cut
+
 #!/usr/bin/perl
 package ActionByNetwork; #name our package;
 use strict;
@@ -37,14 +30,26 @@ use Config::Simple; #for configuration file processing;
 use YAML::Tiny;
 use Data::Dumper;
 
-#my $config_file = '/home/conor/gits/ActionByNetwork/action_by_network.yml';
-#my $config = YAML::Tiny->read( $config_file ) #Import config file as a hash reference;
-#    or die "Unable to read configuration file at '$config_file'";
 
-my $config_file = '/home/conor/gits/ActionByNetwork/abn.conf';
-my $config = Config::Simple->new( $config_file ) #Import config file as a hash reference;
-    or die "Unable to read configuration file at '$config_file'";
-my %config = $config->vars;
+my $config = get_config();
+
+sub get_config_yaml {
+    my $config_file = '/home/conor/gits/ActionByNetwork/abn.yml';
+    my @config = YAML::Tiny->read( $config_file ) #Import config file as a hash reference;
+        or die "Unable to read configuration file at '$config_file'";
+
+    return $config;
+
+}
+sub get_config {
+    my $config_file = '/home/conor/gits/ActionByNetwork/abn.conf';
+    my $config = Config::Simple->new( $config_file ) #Import config file as a hash reference;
+        or die "Unable to read configuration file at '$config_file'";
+    my %config = $config->vars;
+
+    return \%config;
+
+}
 
 
 sub retrieve_ssid { #return SSID of current wireless connection;
@@ -85,20 +90,20 @@ sub determine_location { #return current location by looking up SSID in conf fil
     my $ssid = retrieve_ssid; #get ssid from subroutine;
     my $location; #initialize variable in proper scope;
     my @locations; #initialize variable in proper scope;
-    foreach my $preference (sort keys %config) {
-        chomp $preference;
+    foreach my $preference (sort keys %{$config}) {
         my @block_pref = split('\.', $preference);
         my ($location, $option) = @block_pref;
-        push @locations, $location;
-#        say "LOCATION: $location OPTION: $option VALUE: $config_vars{$key}";
-    }
-    foreach my $loc (@locations) { 
-        my $ssid_pref = $config->param("$loc.ssid");
+        my $ssid_pref = $config->{"$location.ssid"};
         next unless defined($ssid_pref);
         if ($ssid_pref eq $ssid) { 
-            $location = $loc;
+            logger("Location has been determined to be '$location'");
+            return $location; #pass current location back to function caller;
             last;
         }
+        else { #if no ssid match was found;
+            return; #return failure;
+        }
+#        say "LOCATION: $location OPTION: $option VALUE: $config_vars{$key}";
     }
 
 #    if ( exists $locations->{network} ) { #if current SSID exists in configuration file;
@@ -110,8 +115,6 @@ sub determine_location { #return current location by looking up SSID in conf fil
 #        $location = 'other'; #assume roaming and report location as 'other';
 #    }
 #
-    logger("Location has been determined to be '$location'");
-    return $location; #pass current location back to function caller;
 }
 
 ##### Cleanup commands, for when network goes down and processes should be killed;
@@ -139,7 +142,7 @@ sub run_as_user {
 
 sub get_commands { #return list of commands to be run for current location;
     my $location = shift; #unpack location from function caller;
-    my @commands_to_run = $config{"$location.commands"} #read list of commands to run from config;
+    my @commands_to_run = $config->{"$location.commands"} #read list of commands to run from config;
         or return; #return failure if no commands are specified in config file;
     return @commands_to_run; #Pass back list of commands to run;
 }
@@ -151,7 +154,7 @@ sub run_commands { #run specified commands according to config file;
         given ($command) { #begin case statement for commands;
 
             when (/synergy/) { #if specified command is 'synergy';
-                my $target_host = $config{"$location.synergy"};    
+                my $target_host = $config->{"$location.synergy"};    
                 logger("Starting synergyc...");
                 my $synergy_command = "/usr/bin/synergyc $target_host";
                 my $username = 'conor';
@@ -164,9 +167,12 @@ sub run_commands { #run specified commands according to config file;
                 logger("TESTING MONITOR ACTION NOW");
             }
 
+            when (/netmount/) { #if specified command is 'netmount';
+            }
+
             when (/custom/) { #if user has specified command in conf file;
 #                my $custom_command = $config->[1]->{$location}->{commands}->{custom};    
-                my $custom_command = $config{"$location.custom"};    
+                my $custom_command = $config->{"$location.custom"};    
                 given ($custom_command) { #analyze user-specified command;
                     when (/rm /) { #if it looks like there's a remove command;
                         die "Unable to execute custom command '$custom_command'; Looks like rm!";

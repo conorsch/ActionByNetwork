@@ -1,0 +1,26 @@
+#!/usr/bin/perl
+package ActionByNetwork; #name our package;
+use strict;
+use warnings;
+use feature qw/switch say/; #case statements and say is better than print;
+use Config::Simple; #for configuration file processing;
+use YAML::Tiny;
+use Data::Dumper;
+use ActionByNetwork; #this is what we're testing;
+
+
+my $config = get_config;
+say "Config::Simple results::\n";
+say "CONFIG looks like: ", Dump($config);
+say "CONFIG looks like: $config";
+
+
+#
+#$config = get_config_yaml;
+#say "YAML results:\n";
+#say "CONFIG looks like: $config";
+
+
+my $location = determine_location;
+
+say "LOCATION looks like: $location";
